@@ -46,12 +46,29 @@ namespace RebalancedCrests.Crests.Shared
             }
         }
 
+        private static (string Method, int Attack) _lastLogged;
+
         private static void Postfix(HeroController __instance, MovementAfterAttackTweak __state, bool __result, MethodBase __originalMethod)
         {
-            if (__state != null && __result && __instance.attack_time < __instance.Config.AttackRecoveryTime)
+            // only checks made during an attack, once per check and attack
+            if (!__instance.cState.attacking && __state == null)
             {
-                DebugLog.Tweak(__state, $"{__originalMethod.Name} allowed {__instance.attack_time:0.000}s into an attack "
-                                        + $"(vanilla lock: {__instance.Config.AttackRecoveryTime:0.000}s)");
+                return;
+            }
+
+            var key = (__originalMethod.Name, __instance.cState.attackCount);
+            if (key == _lastLogged)
+            {
+                return;
+            }
+
+            _lastLogged = key;
+            var tweak = Instances.FirstOrDefault(t => t.Crest.IsEquipped);
+            if (tweak != null)
+            {
+                DebugLog.Tweak(tweak, $"{__originalMethod.Name} checked {__instance.attack_time:0.000}s into an attack "
+                                      + $"(vanilla lock: {__instance.Config.AttackRecoveryTime:0.000}s): "
+                                      + $"tweak {(__state != null ? "active" : "inactive")}, result {__result}");
             }
         }
 
