@@ -20,8 +20,8 @@ namespace RebalancedCrests.Crests.Shared
         private static readonly List<MovementAfterAttackTweak> Instances = new List<MovementAfterAttackTweak>();
 
         internal MovementAfterAttackTweak(ConfigFile config, Crest crest)
-            : base(config, crest, "Attacking - Allow dash, cloak and double jump",
-                "Allow dash, Drifter's Cloak and double jump during and right after an attack. "
+            : base(config, crest, "Attacking - Allow dash, glide and double jump",
+                "Allow dash, gliding (Drifter's Cloak) and double jump during and right after an attack. "
                 + "Vanilla: blocked until the attack's recovery time has passed.")
         {
             Instances.Add(this);

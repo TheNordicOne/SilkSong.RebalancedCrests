@@ -9,22 +9,22 @@ using RebalancedCrests.Core;
 namespace RebalancedCrests.Crests.Reaper
 {
     /// <summary>
-    /// Silk Steel (reaper mode) is no longer cancelled by taking damage; instead every hit on an enemy that would drop
+    /// Silk Steal (Reaper bind effect, reaper mode) is no longer cancelled by taking damage; instead every hit on an enemy that would drop
     /// silk bundles shortens the remaining duration. Vanilla: HeroController.TakeDamage calls ResetReaperCrestState()
     /// on any damage; that single call is redirected.
     /// </summary>
     [HarmonyPatch]
-    internal sealed class SilkSteelDurationTweak : Tweak
+    internal sealed class BindEffectDurationTweak : Tweak
     {
-        private static SilkSteelDurationTweak _instance;
+        private static BindEffectDurationTweak _instance;
 
-        internal SilkSteelDurationTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "Silk Steel - Kept on damage",
-                "Taking damage no longer ends Silk Steel; each successful hit shortens it instead. "
+        internal BindEffectDurationTweak(ConfigFile config)
+            : base(config, Crest.Reaper, "Silk Steal - Kept on damage",
+                "Taking damage no longer ends Silk Steal (Reaper's bind effect); each successful hit shortens it instead. "
                 + "Vanilla: taking damage ends it.")
         {
-            SecondsPerHit = config.Bind(Crest.Name, "Silk Steel - Seconds lost per hit", 1f,
-                new ConfigDescription("Seconds of Silk Steel lost per successful hit. Vanilla duration: 10 seconds.",
+            SecondsPerHit = config.Bind(Crest.Name, "Silk Steal - Seconds lost per hit", 1f,
+                new ConfigDescription("Seconds of Silk Steal lost per successful hit. Vanilla duration: 10 seconds.",
                     new AcceptableValueRange<float>(0f, 10f)));
             _instance = this;
         }
@@ -36,7 +36,7 @@ namespace RebalancedCrests.Crests.Reaper
         private static IEnumerable<CodeInstruction> KeepOnDamage(IEnumerable<CodeInstruction> instructions)
         {
             var reset = AccessTools.Method(typeof(HeroController), "ResetReaperCrestState");
-            var replacement = AccessTools.Method(typeof(SilkSteelDurationTweak), nameof(OnHeroDamaged));
+            var replacement = AccessTools.Method(typeof(BindEffectDurationTweak), nameof(OnHeroDamaged));
             var replaced = 0;
             foreach (var instruction in instructions)
             {
@@ -52,7 +52,7 @@ namespace RebalancedCrests.Crests.Reaper
 
             if (replaced != 1)
             {
-                throw new InvalidOperationException($"Expected one Silk Steel reset in TakeDamage, found {replaced}");
+                throw new InvalidOperationException($"Expected one Silk Steal reset in TakeDamage, found {replaced}");
             }
         }
 

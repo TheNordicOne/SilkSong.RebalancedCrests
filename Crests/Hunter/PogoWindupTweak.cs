@@ -13,12 +13,12 @@ namespace RebalancedCrests.Crests.Hunter
         private readonly ConfigEntry<float> _windupSeconds;
 
         internal PogoWindupTweak(ConfigFile config)
-            : base(config, Crest.Hunter, "Pogo - Shorter windup",
-                "Change the windup of the pogo (down attack) before it can hit. Vanilla: 0.1 seconds.")
+            : base(config, Crest.Hunter, "Down-slash - Shorter windup",
+                "Change the windup of the Down-slash (pogo) before it can hit. Vanilla: 0.1 seconds.")
         {
-            _windupSeconds = config.Bind(Crest.Name, "Pogo - Windup seconds", 0f,
+            _windupSeconds = config.Bind(Crest.Name, "Down-slash - Windup seconds", 0f,
                 new ConfigDescription(
-                    "Windup of the pogo in seconds. 0 = it hits the moment you press attack.",
+                    "Windup of the Down-slash in seconds. 0 = it hits the moment you press attack.",
                     new AcceptableValueRange<float>(0f, 0.5f)));
         }
 

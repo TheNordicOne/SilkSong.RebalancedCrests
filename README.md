@@ -26,14 +26,14 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Dash, Drifter's Cloak and double jump are not blocked during and right after an attack | `Attacking - Allow dash, cloak and double jump` (every crest) | blocked for the attack's recovery time (Reaper: 0.3 s) |
+| Dash, glide (Drifter's Cloak) and double jump are not blocked during and right after an attack | `Attacking - Allow dash, glide and double jump` (every crest) | blocked for the attack's recovery time (Reaper: 0.3 s) |
 
 ### Hunter
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Pogo has no windup | `Pogo - Shorter windup`, `Pogo - Windup seconds` (default 0) | 0.1 s windup |
-| Sprint attack has no windup | `Sprint attack - Shorter windup`, `Sprint attack - Windup seconds` (default 0) | 0.1667 s windup |
+| Down-slash (pogo) has no windup | `Down-slash - Shorter windup`, `Down-slash - Windup seconds` (default 0) | 0.1 s windup |
+| Run-slash has no windup | `Run-slash - Shorter windup`, `Run-slash - Windup seconds` (default 0) | 0.1667 s windup |
 | Needle Strike no longer pushes Hornet backwards | `Needle Strike - No pushback` | pushed back |
 | Upgraded Hunter crest loses only some focus per hit taken | `Focus - Keep some on hit`, `Focus - Lost per hit` (default 6) | all focus lost |
 
@@ -41,19 +41,19 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Up attack hits in front of Hornet | `Up attack - In front of Hornet` | mostly behind her |
-| Sprint attack has no windup | `Sprint attack - Shorter windup`, `Sprint attack - Windup seconds` (default 0) | 0.125 s windup |
+| Up-slash hits in front of Hornet | `Up-slash - In front of Hornet` | mostly behind her |
+| Run-slash has no windup | `Run-slash - Shorter windup`, `Run-slash - Windup seconds` (default 0) | 0.125 s windup |
 | Bigger Needle Strike | `Needle Strike - Bigger`, `Needle Strike - Size multiplier` (default 1.25) | 1 |
-| Pogo hits instantly, keeps control of Hornet and no longer pulls her diagonally; keeps its slow attack speed | `Pogo - Instant, keeps control` | 0.1667 s windup, ~0.5 s without control |
-| Silk Steel: fixed silk fragments per hit | `Silk Steel - Fixed fragments per hit`, `Silk Steel - Fragments per hit` (default 2) | random 1-3 |
-| Silk Steel: Needle Strike drops more fragments | `Silk Steel - More Needle Strike fragments`, `Silk Steel - Needle Strike fragments per hit` (default 6) | same as other hits |
-| Silk Steel is kept when taking damage; each hit shortens it instead | `Silk Steel - Kept on damage`, `Silk Steel - Seconds lost per hit` (default 1) | ends on damage |
+| Down-slash (pogo) hits instantly, keeps control of Hornet and no longer pulls her diagonally; keeps its slow attack speed | `Down-slash - Instant, keeps control` | 0.1667 s windup, ~0.5 s without control |
+| Silk Steal (bind effect): fixed Silk fragments per hit | `Silk Steal - Fixed fragments per hit`, `Silk Steal - Fragments per hit` (default 2) | random 1-3 |
+| Silk Steal: Needle Strike drops more Silk fragments | `Silk Steal - More Needle Strike fragments`, `Silk Steal - Needle Strike fragments per hit` (default 6) | same as other hits |
+| Silk Steal is kept when taking damage; each hit shortens it instead | `Silk Steal - Kept on damage`, `Silk Steal - Seconds lost per hit` (default 1) | ends on damage |
 
 ### Wanderer
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Sprint attack has no windup | `Sprint attack - Shorter windup`, `Sprint attack - Windup seconds` (default 0) | 0.1111 s windup |
+| Run-slash has no windup | `Run-slash - Shorter windup`, `Run-slash - Windup seconds` (default 0) | 0.1111 s windup |
 
 ## Requirements
 

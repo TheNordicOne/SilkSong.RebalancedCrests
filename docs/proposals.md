@@ -31,10 +31,10 @@ Status: done, planned (tuning of existing mechanics), deferred (new feature, don
 | Sprint slash without startup delay | done |
 | Needle strike with a bigger hitbox (no value given; default 1.25x) | done |
 | Down slash keeps its slow attack speed but loses the windup, the input-eating frames and the forced diagonal movement | done |
-| Bind (Silk Steel): fixed silk fragment count per hit instead of random 1-3 | done |
+| Silk Steal (bind effect): fixed Silk fragment count per hit instead of random 1-3 | done |
 | Bind: needle strike drops significantly more fragments | done |
-| Bind: taking damage does not cancel Silk Steel; each successful attack reduces the remaining duration by 1 s instead | done |
-| Harvest Bind: Up + Bind for 4 silk grants Silk Steel without healing | deferred |
+| Bind: taking damage does not end Silk Steal; each successful attack reduces the remaining duration by 1 s instead | done |
+| Harvest Bind: Up + Bind for 4 silk grants Silk Steal without healing | deferred |
 | Tool slots unchanged | – |
 
 ## Wanderer ([video](https://www.youtube.com/watch?v=yMxEuaWvhGQ))

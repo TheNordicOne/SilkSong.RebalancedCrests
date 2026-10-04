@@ -12,8 +12,8 @@ namespace RebalancedCrests.Crests.Reaper
     internal sealed class UpSlashInFrontTweak : Tweak
     {
         internal UpSlashInFrontTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "Up attack - In front of Hornet",
-                "The up attack hits in front of Hornet instead of behind her. Vanilla: mostly behind.")
+            : base(config, Crest.Reaper, "Up-slash - In front of Hornet",
+                "The Up-slash hits in front of Hornet instead of behind her. Vanilla: mostly behind.")
         {
         }
 

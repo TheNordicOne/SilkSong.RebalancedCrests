@@ -33,7 +33,7 @@ namespace RebalancedCrests
             _tweaks.Add(new DownSlashTweak(Config));
             _tweaks.Add(new FixedSilkBundlesTweak(Config));
             _tweaks.Add(new NeedleStrikeSilkBundlesTweak(Config));
-            _tweaks.Add(new SilkSteelDurationTweak(Config));
+            _tweaks.Add(new BindEffectDurationTweak(Config));
 
             _tweaks.Add(new SprintSlashWindupTweak(Config, Crest.Wanderer, 0.1111f, 2, "Wanderer Nml", "Wanderer Alt"));
 
