@@ -12,6 +12,7 @@ namespace RebalancedCrests.Crests.Shared
     /// Allows dash, Drifter's Cloak and double jump during and right after a nail attack. Vanilla blocks them while
     /// cState.attacking and attack_time &lt; Config.AttackRecoveryTime (CanDash inline, CanDoubleJump and CanFloat via
     /// IsAttackLocked). Attack, Clawline, silk skills, tools and bind keep their vanilla locks.
+    /// One instance per crest; only the instance of the equipped crest applies.
     /// </summary>
     [HarmonyPatch]
     internal sealed class MovementAfterAttackTweak : Tweak
@@ -36,18 +37,27 @@ namespace RebalancedCrests.Crests.Shared
         /// <summary>
         /// These checks only see the attack through cState.attacking, so it is hidden for the duration of the check.
         /// </summary>
-        private static void Prefix(HeroController __instance, out bool __state)
+        private static void Prefix(HeroController __instance, out MovementAfterAttackTweak __state)
         {
-            __state = __instance.cState.attacking && Instances.Any(tweak => tweak.IsActive);
-            if (__state)
+            __state = __instance.cState.attacking ? Instances.FirstOrDefault(tweak => tweak.IsActive) : null;
+            if (__state != null)
             {
                 __instance.cState.attacking = false;
             }
         }
 
-        private static Exception Finalizer(HeroController __instance, bool __state, Exception __exception)
+        private static void Postfix(HeroController __instance, MovementAfterAttackTweak __state, bool __result, MethodBase __originalMethod)
         {
-            if (__state)
+            if (__state != null && __result && __instance.attack_time < __instance.Config.AttackRecoveryTime)
+            {
+                DebugLog.Tweak(__state, $"{__originalMethod.Name} allowed {__instance.attack_time:0.000}s into an attack "
+                                        + $"(vanilla lock: {__instance.Config.AttackRecoveryTime:0.000}s)");
+            }
+        }
+
+        private static Exception Finalizer(HeroController __instance, MovementAfterAttackTweak __state, Exception __exception)
+        {
+            if (__state != null)
             {
                 __instance.cState.attacking = true;
             }

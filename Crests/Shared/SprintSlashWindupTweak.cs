@@ -14,14 +14,21 @@ namespace RebalancedCrests.Crests.Shared
     internal sealed class SprintSlashWindupTweak : Tweak
     {
         private readonly string[] _anticStates;
+        private readonly int _strikeFrame;
 
-        /// <param name="anticStates">Sprint FSM states that hold the windup.</param>
         /// <param name="vanillaSeconds">Vanilla windup, used for the description and the upper limit.</param>
-        internal SprintSlashWindupTweak(ConfigFile config, Crest crest, float vanillaSeconds, params string[] anticStates)
+        /// <param name="strikeFrame">
+        /// For crests whose following states keep playing the antic clip: the clip frame where the strike starts. The
+        /// hero animation jumps there when the windup is skipped, so the animation matches the hit. -1 if the following
+        /// states play their own clip.
+        /// </param>
+        /// <param name="anticStates">Sprint FSM states that hold the windup.</param>
+        internal SprintSlashWindupTweak(ConfigFile config, Crest crest, float vanillaSeconds, int strikeFrame, params string[] anticStates)
             : base(config, crest, "Sprint slash - Shorter windup",
                 $"Change the windup of the sprint slash before its hitbox becomes active. Vanilla: {vanillaSeconds:0.####} seconds.")
         {
             _anticStates = anticStates;
+            _strikeFrame = strikeFrame;
             WindupSeconds = config.Bind(crest.Name, "Sprint slash - Windup seconds", 0f,
                 new ConfigDescription(
                     "Windup of the sprint slash in seconds. 0 = the hitbox is active in the frame the attack is pressed. "
@@ -77,10 +84,24 @@ namespace RebalancedCrests.Crests.Shared
 
             private void CheckWindup()
             {
-                if (_elapsed >= Tweak.WindupSeconds.Value)
+                if (_elapsed < Tweak.WindupSeconds.Value)
                 {
-                    Fsm.Event(FsmEvent.Finished);
+                    return;
                 }
+
+                var state = State.Name;
+                Fsm.Event(FsmEvent.Finished);
+                if (Tweak._strikeFrame >= 0)
+                {
+                    var animator = Owner.GetComponent<tk2dSpriteAnimator>();
+                    if (animator.CurrentClip != null && animator.CurrentClip.frames.Length > Tweak._strikeFrame
+                                                     && animator.CurrentFrame < Tweak._strikeFrame)
+                    {
+                        animator.PlayFromFrame(Tweak._strikeFrame);
+                    }
+                }
+
+                Core.DebugLog.Tweak(Tweak, $"Sprint slash windup ended after {_elapsed:0.000}s in state '{state}'");
             }
         }
     }

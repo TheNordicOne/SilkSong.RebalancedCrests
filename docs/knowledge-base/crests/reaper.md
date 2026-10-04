@@ -410,6 +410,9 @@ starts.
   (1.01,-3.01) (2.289,-2.148) (2.793,-0.815) (2.693,-0.082) (-2.622,-0.04).
 - Damage: Nail, `nailDamageMultiplier = 1`, `stunDamage = 1`, `direction = 270`, `magnitudeMult = 1.3`,
   `silkGeneration = Full`, `dealtDamageFSM` = its own `Dealt Damage Response` FSM.
+- Components: `NailSlash`, `DamageEnemies`, `PlayMakerFSM` (`Dealt Damage Response`), `PlayMakerUnity2DProxy`. It has
+  **no `HeroDownAttack`** (unlike Wanderer's `DownSlash` / `DownSlashAlt`); the pogo bounce comes only from the
+  `Crest Attacks` FSM through `ATTACK LANDED` / `BOUNCE TINKED` / `BOUNCE CANCEL` (section 5.5).
 - `NailSlashRecoil` (added at runtime) does nothing for a downward (cardinal 3) damager.
 - The Reaper down-slash hurtbox (`HeroBoxReaperDownSlash`, active from the antic until `Rpr Downslash Fall 2` or
   `RegainControl`) spans hero-local x +0.142 … +0.598, y -0.169 … +1.433. The normal air hurtbox spans x

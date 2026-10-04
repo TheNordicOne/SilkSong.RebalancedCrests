@@ -2,6 +2,7 @@ using BepInEx.Configuration;
 using HarmonyLib;
 using RebalancedCrests.Core;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 namespace RebalancedCrests.Crests.Reaper
 {
@@ -10,7 +11,9 @@ namespace RebalancedCrests.Crests.Reaper
     /// the Crest Attacks FSM ("RPR DOWNSLASH"). That removes the 0.1667 s windup, the control lock
     /// (RelinquishControlNotVelocity until ~0.5 s) and the forced (30, -30) diagonal movement. The attack keeps
     /// Reaper's attack duration and cooldown, its hitbox object (Attacks/Scythe/DownSlash New, active for
-    /// 0.1667 s), its HeroDownAttack pogo detection and the default pogo bounce.
+    /// 0.1667 s) and the default pogo bounce. Vanilla, the bounce comes from the Crest Attacks FSM (Dealt Damage
+    /// Response → ATTACK LANDED); on the Slash path a HeroDownAttack component does that, as on Wanderer's down slash,
+    /// so one is added to the object while the tweak is enabled.
     /// </summary>
     [HarmonyPatch]
     internal sealed class DownSlashTweak : Tweak
@@ -44,6 +47,32 @@ namespace RebalancedCrests.Crests.Reaper
                 .Apply(enabled, downSlash.GetComponent<NailSlash>());
             Override(group, nameof(group.DownSlashDamager), () => group.DownSlashDamager, value => group.DownSlashDamager = value)
                 .Apply(enabled, downSlash.GetComponent<DamageEnemies>());
+
+            var downAttack = downSlash.GetComponent<HeroDownAttack>();
+            if (enabled && downAttack == null)
+            {
+                downSlash.AddComponent<HeroDownAttack>();
+            }
+            else if (!enabled && downAttack != null)
+            {
+                Remove(downAttack);
+            }
+        }
+
+        /// <summary>
+        /// HeroDownAttack subscribes to its attack's events in Awake and never unsubscribes, so that is done here.
+        /// </summary>
+        private static void Remove(HeroDownAttack downAttack)
+        {
+            var attack = downAttack.attack;
+            if (attack != null)
+            {
+                attack.AttackStarting -= downAttack.OnAttackStarting;
+                attack.EndedDamage -= downAttack.OnEndedDamage;
+                attack.EnemyDamager.HitResponded -= downAttack.OnHitResponded;
+            }
+
+            Object.Destroy(downAttack);
         }
 
         /// <summary>
