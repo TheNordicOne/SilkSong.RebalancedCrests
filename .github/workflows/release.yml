@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+
+      - name: Read version
+        id: version
+        run: |
+          VERSION=$(grep -oP 'BepInPlugin\("[^"]*", "[^"]*", "\K[^"]+' RebalancedCrests.cs)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Refuse an existing version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "v${{ steps.version.outputs.version }}" > /dev/null 2>&1; then
+            echo "::error::v${{ steps.version.outputs.version }} is already released, raise the version in RebalancedCrests.cs"
+            exit 1
+          fi
+
+      - name: Build
+        run: dotnet build -c Release -p:Version=${{ steps.version.outputs.version }}
+
+      - name: Package for Thunderstore
+        run: |
+          mkdir -p dist/thunderstore/plugins
+          cp bin/Release/netstandard2.1/RebalancedCrests.dll dist/thunderstore/plugins/
+          cp README.md icon.png dist/thunderstore/
+          jq -n --arg version "${{ steps.version.outputs.version }}" '{name: "RebalancedCrests", version_number: $version, website_url: "https://github.com/TheNordicOne/Silksong.RebalancedCrests", description: "TODO description, at most 250 characters", dependencies: ["silksong_modding-BepInExPack_Silksong-1.0.3"]}' > dist/thunderstore/manifest.json
+          cd dist/thunderstore && zip -r "../RebalancedCrests-${{ steps.version.outputs.version }}-thunderstore.zip" .
+
+      - name: Package for Nexus
+        run: |
+          mkdir -p dist/nexus/BepInEx/plugins/RebalancedCrests
+          cp bin/Release/netstandard2.1/RebalancedCrests.dll dist/nexus/BepInEx/plugins/RebalancedCrests/
+          cd dist/nexus && zip -r "../RebalancedCrests-${{ steps.version.outputs.version }}-nexus.zip" BepInEx
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.version.outputs.version }}" "dist/RebalancedCrests-${{ steps.version.outputs.version }}-thunderstore.zip" "dist/RebalancedCrests-${{ steps.version.outputs.version }}-nexus.zip" --target "$GITHUB_SHA" --title "Rebalanced Crests ${{ steps.version.outputs.version }}" --generate-notes
