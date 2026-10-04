@@ -13,9 +13,9 @@ namespace RebalancedCrests.Crests.Reaper
         private readonly ConfigEntry<float> _scale;
 
         internal NeedleStrikeRangeTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "NeedleStrikeRange", "Enlarge the needle strike and its hitboxes.")
+            : base(config, Crest.Reaper, "Needle strike - Bigger", "Enlarge the needle strike and its hitboxes.")
         {
-            _scale = config.Bind(Crest.Name, "NeedleStrikeRangeScale", 1.25f,
+            _scale = config.Bind(Crest.Name, "Needle strike - Size multiplier", 1.25f,
                 new ConfigDescription("Size multiplier of the needle strike. Vanilla: 1.",
                     new AcceptableValueRange<float>(1f, 2f)));
         }

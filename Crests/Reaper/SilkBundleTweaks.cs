@@ -10,10 +10,10 @@ namespace RebalancedCrests.Crests.Reaper
     internal sealed class FixedSilkBundlesTweak : Tweak
     {
         internal FixedSilkBundlesTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "SilkBundlesFixed",
+            : base(config, Crest.Reaper, "Silk Steel - Fixed bundles per hit",
                 "Drop a fixed number of silk bundles per hit during Silk Steel. Vanilla: random 1-3 (average 1.8).")
         {
-            Count = config.Bind(Crest.Name, "SilkBundlesPerHit", 2,
+            Count = config.Bind(Crest.Name, "Silk Steel - Bundles per hit", 2,
                 new ConfigDescription("Silk bundles per hit. 3 bundles = 1 silk.", new AcceptableValueRange<int>(0, 9)));
             ReaperPayoutPatch.Fixed = this;
         }
@@ -27,10 +27,10 @@ namespace RebalancedCrests.Crests.Reaper
     internal sealed class NeedleStrikeSilkBundlesTweak : Tweak
     {
         internal NeedleStrikeSilkBundlesTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "NeedleStrikeSilkBundles",
+            : base(config, Crest.Reaper, "Silk Steel - More needle strike bundles",
                 "Needle strike hits drop more silk bundles during Silk Steel. Vanilla: same as any other hit.")
         {
-            Count = config.Bind(Crest.Name, "NeedleStrikeSilkBundlesPerHit", 6,
+            Count = config.Bind(Crest.Name, "Silk Steel - Needle strike bundles per hit", 6,
                 new ConfigDescription("Silk bundles per needle strike hit. 3 bundles = 1 silk.",
                     new AcceptableValueRange<int>(0, 18)));
             ReaperPayoutPatch.NeedleStrike = this;

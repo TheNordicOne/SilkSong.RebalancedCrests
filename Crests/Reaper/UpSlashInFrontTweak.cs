@@ -12,7 +12,7 @@ namespace RebalancedCrests.Crests.Reaper
     internal sealed class UpSlashInFrontTweak : Tweak
     {
         internal UpSlashInFrontTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "UpSlashInFront",
+            : base(config, Crest.Reaper, "Up slash - In front",
                 "Place the up slash in front of Hornet instead of behind her. Vanilla: mostly behind.")
         {
         }

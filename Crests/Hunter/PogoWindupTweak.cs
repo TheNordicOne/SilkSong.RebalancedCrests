@@ -13,10 +13,10 @@ namespace RebalancedCrests.Crests.Hunter
         private readonly ConfigEntry<float> _windupSeconds;
 
         internal PogoWindupTweak(ConfigFile config)
-            : base(config, Crest.Hunter, "PogoWindup",
+            : base(config, Crest.Hunter, "Pogo - Shorter windup",
                 "Change the windup of the down attack (pogo) before its hitbox becomes active. Vanilla: 0.1 seconds.")
         {
-            _windupSeconds = config.Bind(Crest.Name, "PogoWindupSeconds", 0f,
+            _windupSeconds = config.Bind(Crest.Name, "Pogo - Windup seconds", 0f,
                 new ConfigDescription(
                     "Windup of the down attack in seconds. 0 = the hitbox is active in the frame the attack is pressed.",
                     new AcceptableValueRange<float>(0f, 0.5f)));

@@ -11,10 +11,10 @@ namespace RebalancedCrests.Core
     /// </summary>
     internal abstract class Tweak
     {
-        protected Tweak(ConfigFile config, Crest crest, string name, string description)
+        protected Tweak(ConfigFile config, Crest crest, string key, string description)
         {
             Crest = crest;
-            Enabled = config.Bind(crest.Name, $"{name}Enabled", true, description);
+            Enabled = config.Bind(crest.Name, key, true, description);
         }
 
         internal Crest Crest { get; }

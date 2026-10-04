@@ -19,11 +19,11 @@ namespace RebalancedCrests.Crests.Reaper
         private static SilkSteelDurationTweak _instance;
 
         internal SilkSteelDurationTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "SilkSteelKeptOnDamage",
+            : base(config, Crest.Reaper, "Silk Steel - Kept on damage",
                 "Taking damage no longer ends Silk Steel; each successful hit shortens it instead. "
                 + "Vanilla: taking damage ends it.")
         {
-            SecondsPerHit = config.Bind(Crest.Name, "SilkSteelSecondsPerHit", 1f,
+            SecondsPerHit = config.Bind(Crest.Name, "Silk Steel - Seconds lost per hit", 1f,
                 new ConfigDescription("Seconds of Silk Steel lost per successful hit. Vanilla duration: 10 seconds.",
                     new AcceptableValueRange<float>(0f, 10f)));
             _instance = this;

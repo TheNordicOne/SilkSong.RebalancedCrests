@@ -18,11 +18,11 @@ namespace RebalancedCrests.Crests.Shared
         /// <param name="anticStates">Sprint FSM states that hold the windup.</param>
         /// <param name="vanillaSeconds">Vanilla windup, used for the description and the upper limit.</param>
         internal SprintSlashWindupTweak(ConfigFile config, Crest crest, float vanillaSeconds, params string[] anticStates)
-            : base(config, crest, "SprintSlashWindup",
+            : base(config, crest, "Sprint slash - Shorter windup",
                 $"Change the windup of the sprint slash before its hitbox becomes active. Vanilla: {vanillaSeconds:0.####} seconds.")
         {
             _anticStates = anticStates;
-            WindupSeconds = config.Bind(crest.Name, "SprintSlashWindupSeconds", 0f,
+            WindupSeconds = config.Bind(crest.Name, "Sprint slash - Windup seconds", 0f,
                 new ConfigDescription(
                     "Windup of the sprint slash in seconds. 0 = the hitbox is active in the frame the attack is pressed. "
                     + $"Values of {vanillaSeconds:0.####} or more behave like vanilla.",
