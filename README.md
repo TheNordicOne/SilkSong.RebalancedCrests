@@ -19,7 +19,14 @@ Once you got it installed, download this mod and unpack the zip into
 
 ## Main features
 
-- TODO
+Every change can be toggled and tuned individually in the config file
+(`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`).
+
+### Hunter
+
+| Change | Config | Vanilla |
+|---|---|---|
+| Down attack (pogo) has no windup: the hitbox is active in the frame the attack is pressed | `PogoWindupEnabled`, `PogoWindupSeconds` (default 0) | 0.1 s windup |
 
 ## Requirements
 

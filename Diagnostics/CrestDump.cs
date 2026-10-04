@@ -11,6 +11,7 @@ using BepInEx.Logging;
 using GlobalSettings;
 using HarmonyLib;
 using HutongGames.PlayMaker;
+using RebalancedCrests.Core;
 using UnityEngine;
 using Object = UnityEngine.Object;
 
@@ -20,7 +21,6 @@ namespace RebalancedCrests.Diagnostics
     /// Research tool: once a save is loaded, writes everything about the hero, its crests, attacks, FSMs,
     /// animations and every object/asset they reference to BepInEx/RebalancedCrests-dump.
     /// </summary>
-    [HarmonyPatch]
     internal static class CrestDump
     {
         private const BindingFlags InstanceFields =
@@ -60,11 +60,10 @@ namespace RebalancedCrests.Diagnostics
             _log = log;
             _enabled = config.Bind("Debug", "DumpCrestData", false,
                 "Write crest, hero config and FSM data to BepInEx/RebalancedCrests-dump when a save is loaded.");
+            HeroEvents.HeroStarted += OnHeroStarted;
         }
 
-        [HarmonyPatch(typeof(HeroController), "Start")]
-        [HarmonyPostfix]
-        private static void AfterHeroStart(HeroController __instance)
+        private static void OnHeroStarted(HeroController hero)
         {
             if (!_enabled.Value || _dumped)
             {
@@ -72,7 +71,7 @@ namespace RebalancedCrests.Diagnostics
             }
 
             _dumped = true;
-            __instance.StartCoroutine(DumpDelayed(__instance));
+            hero.StartCoroutine(DumpDelayed(hero));
         }
 
         private static IEnumerator DumpDelayed(HeroController hero)
@@ -325,7 +324,7 @@ namespace RebalancedCrests.Diagnostics
         private static string DumpInputHandler()
         {
             var sb = new StringBuilder();
-            var handler = Object.FindObjectOfType<InputHandler>();
+            var handler = Object.FindAnyObjectByType<InputHandler>();
             sb.AppendLine($"== InputHandler {Name(handler)} ==");
             if (handler != null)
             {
