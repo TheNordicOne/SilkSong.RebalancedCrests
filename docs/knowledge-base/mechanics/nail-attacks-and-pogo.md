@@ -9,10 +9,15 @@ Conventions on this page:
 
 - "@60" means the same duration expressed in frames at 60 fps (`seconds x 60`). It is a conversion only.
   The real number of rendered frames depends on the frame rate.
-- Fixed timestep: the game's `TimeManager` asset (`globalgamemanagers`) has
-  `Fixed Timestep = 2822399 / 141120000 s` = **0.019999993 s (50 Hz)**. The decompiled code only reads
-  `Time.fixedDeltaTime` and never assigns it (`GameManager.cs:3206`). Everything counted in "steps" below is
-  counted in `FixedUpdate`, so 1 step = 0.02 s.
+- Fixed timestep: `engine-settings.txt` has `Time.fixedDeltaTime = 0.01999999` (**50 Hz**),
+  `Time.maximumDeltaTime = 0.3333333`, `Time.timeScale = 1`, `Physics2D.gravity = (0, -60)`,
+  `Physics2D.simulationMode = FixedUpdate`, `Application.targetFrameRate = -1`, `QualitySettings.vSyncCount = 1`.
+  The decompiled code only reads `Time.fixedDeltaTime` and never assigns it (`GameManager.cs:3206`). Everything
+  counted in "steps" below is counted in `FixedUpdate`, so 1 step = 0.01999999 s (written as 0.02 s where the
+  difference does not matter). Inside `FixedUpdate`, `Time.deltaTime` returns the fixed timestep.
+- Physics step order (Unity): all `FixedUpdate` scripts run, then the 2D physics step integrates
+  (semi-implicit Euler: `v += gravity x gravityScale x dt`, then `position += v x dt`), then trigger and
+  collision callbacks (`OnTriggerEnter2D`, `OnCollisionEnter2D`, ...) run.
 - Timers named `*_time`, `*Timer` or `*_cooldown` in `HeroController.Update` are advanced by `Time.deltaTime` once
   per rendered frame.
 - tk2d clip durations are `frames / fps`. tk2d advances clips by `deltaTime x fps` once per rendered frame
@@ -20,7 +25,7 @@ Conventions on this page:
   `n / fps` seconds after the start.
 - Facing: the hero faces right when `transform.localScale.x < 0` and left when `> 0`.
 - The source files are the decompiled `Assembly-CSharp` (`HeroController.cs` etc.) plus the
-  `tk2dSpriteAnimator` class from `TeamCherry.TK2D.dll`.
+  `tk2dSpriteAnimator` class from `TeamCherry.TK2D.dll`, and the runtime dump in `raw-dump/` (section 7).
 
 ---
 
@@ -64,6 +69,11 @@ The input is read in `LookForInput()`, which runs in `Update()`:
   - `ResetInputQueues()` clears the buffer.
 - `startWithAttack` (set by `SetStartWithAttack()`, used by FSMs) makes `RegainControl()` call `DoAttack()`
   directly.
+- `InputHandler` has its own press buffer (`BUTTON_QUEUE_TIME = 0.1`, `input-handler.txt`; a press sets the
+  button's timer to 0.1 s, decremented by `Time.unscaledDeltaTime`). It is read only through
+  `GetWasButtonPressedQueued`, which `HeroController` uses for Jump (in `RegainControl`), `SlideSurface` uses for
+  Jump, and FSMs use via the `GetWasButtonPressedQueued` action (`Sprint` FSM). The nail attack input does not
+  use it.
 
 `CanAttack()`:
 
@@ -321,13 +331,16 @@ downSpikeTimer += Time.deltaTime;   // 0.02 per step
 ```
 
 - Velocity is a 45 degree diagonal down and forward, `(+/-26, -26)`, with magnitude 36.77.
-- With the 0.02 s step, the timer before each step is 0, 0.02, 0.04, 0.06, 0.08, 0.09999996 (float). That gives
-  **6 thrust steps (0.12 s of physics time)**. `FinishDownspike()` runs on the 7th step (timer 0.11999996 >
-  0.1). Measured from the frame that enabled the hitbox, the end therefore comes 0.12 to 0.14 s later (7.2 to
-  8.4 @60), depending on the frame / physics phase.
-- Unobstructed travel during the thrust: 6 x 0.02 x 26 = **3.12 units down and 3.12 units forward**.
+- With the 0.01999999 s step, the float32 timer before each step is 0, 0.01999999, 0.03999998, 0.059999973,
+  0.07999996, 0.09999995. That gives **6 thrust steps (0.12 s of physics time)**. `FinishDownspike()` runs on the
+  7th step (timer 0.11999994 > 0.1). Measured from the frame that enabled the hitbox, the end therefore comes
+  0.12 to 0.14 s later (7.2 to 8.4 @60), depending on the frame / physics phase.
+- Unobstructed travel during the thrust: 6 x 0.01999999 x 26 = **3.12 units down and 3.12 units forward**.
+  Gravity is off (`gravityScale = 0` from `AffectedByGravity(false)`), and the `MAX_FALL_VELOCITY = 30` clamp is
+  skipped while control is relinquished, so vy stays exactly -26.
 - Animation: `"DownSpike"` (Knight: fps 25, 4 frames, wrap LoopSection loopStart 2, so frames 0-1 once in
-  0.08 s and then frames 2-3 loop). The slash effect `"DownSlashEffect"` on the DownSlash object is in the
+  0.08 s and then frames 2-3 loop). The slash effect `"DownSlashEffect"` on the DownSlash object
+  (`Hero_Hornet(Clone)/Attacks/Default/DownSlash`) is in the
   Knight library: fps 33.33333, 5 frames, wrap Once, loopStart 1, **no trigger frames**, 0.15 s, then it
   holds. Because the clip has no trigger frames, `Downspike.OnAnimationEventTriggered` never fires.
   `IsDamagerActive` therefore stays true for the whole thrust (`waitForBounceTrigger = False`).
@@ -388,6 +401,11 @@ Wanderer (`downSlashType = Slash`) uses `NailSlash` objects `DownSlash` / `DownS
 - At the press (F0), `Attack()` sets `cState.attacking`, `attackDuration = 0.25`, `cState.downAttacking`, and
   direction 270, then calls `NailSlash.StartSlash()` in the same frame. There is no antic, no
   `RelinquishControl`, no gravity change and no velocity change.
+- Objects: `Hero_Hornet(Clone)/Attacks/Wanderer/DownSlash` (localPos (-0.008, -0.143), localScale (0.8, 1, 1))
+  and `.../Wanderer/DownSlashAlt` (localPos (0.05, -0.128), localScale (-0.8, 1, 1)). `DamageEnemies`:
+  `useNailDamage = True`, `nailDamageMultiplier = 1`, `direction = 270`, `manualTrigger = False`,
+  `multiHitter = False`. DownSlash polygon (trigger, disabled at rest): (2.187,-0.237) (2.101,-1.491)
+  (1.269,-2.21) (0.146,-2.533) (-1.181,-2.26) (-1.817,-1.591) (-1.841,-0.246).
 - Clip `DownSlashEffect` (Dagger lib): fps 25, 5 frames, wrap Once, triggers `[1:'' 3:'Bounce' 4:'']`.
   - frame 1, the first counted trigger, at 1/25 = **0.04 s (2.4 @60)**: `SetCollidersActive(true)`.
   - frame 3 `'Bounce'` at 0.12 s (7.2 @60): bounce-timing event (section 4.3). It is not counted by
@@ -493,9 +511,46 @@ else CancelJump();
   - DownSpikeBounce 1: fps 40, 37 frames (0.925 s)
   - DownSpikeBounce 2: fps 14, 12 frames (0.857 s)
   - Recoil Twirl: fps 15, 13 frames (0.867 s)
-- The final apex height depends on the Physics2D gravity vector and the rigidbody gravity scale. The scale
-  is `DEFAULT_GRAVITY = 1` after `ResetGravity`, but the Physics2D gravity is not in the dumps, so the apex
-  height is not determinable from them.
+
+**Pogo bounce height (Default config, unobstructed).** Inputs:
+
+- `Physics2D.gravity = (0, -60)`, `Time.fixedDeltaTime = 0.01999999` (`engine-settings.txt`).
+- Hero `Rigidbody2D`: `linearDamping = 0`, `interpolation = Interpolate`, `collision = Continuous`
+  (`hero-hierarchy.txt`; the snapshot shows `gravityScale = 0` with `IsGravityApplied = False`,
+  `prevGravityScale = 1`, a transient state). During the bounce the scale is `DEFAULT_GRAVITY = 1`, because
+  `FinishDownspike` calls `ResetGravity()` after `OnHitResponded`'s `AffectedByGravity(false)`.
+  `RegainControl`'s `AffectedByGravity(true)` does not change a scale that is already > 0.
+- Velocity change from gravity per step: `60 x 1 x 0.01999999 = 1.2` (1.1999994) units/s.
+- `JUMP_SPEED = 18.6`, `JUMP_STEPS = 8`, `MAX_FALL_VELOCITY = 30` (only clamps downward speed, not involved in
+  the rise), `AIR_HANG_GRAVITY = 0.1` / `AIR_HANG_ACCEL = 5` (only applied once `vy < 0`, so it does not change
+  the apex).
+
+Sequence (step N = the physics step whose trigger callback runs `DownspikeBounce`):
+
+1. Step N: position integration has already happened. The callback leaves `vy = -10` (`FinishDownspike`).
+2. Steps N+1 ... N+5: `Jump()` sets `vy = 18.6` (jump_steps 4 -> 8), physics makes it `18.6 - 1.2 = 17.4` and
+   moves `17.4 x 0.02 = 0.348` per step. Total **1.740**.
+3. Step N+6: jump_steps = 9 > 8, `CancelJump()` (velocity unchanged). From here only gravity acts: vy after
+   each step is 16.2, 15.0, ..., 0.6 (14 steps with vy > 0), then -0.6. Rise = `0.02 x (16.2 + 15.0 + ... + 0.6)
+   = 0.02 x 14 x (16.2 + 0.6) / 2 = 2.352`.
+4. Apex = 1.740 + 2.352 = **4.092 units above the hero's position at the bounce step**, reached at the end of
+   step N+19, i.e. **19 fixed steps = 0.38 s** after the bounce. A float32 simulation with dt = 0.01999999 gives
+   4.0919995.
+
+General form for the same rise speed: apex = `n x 0.348 + 2.352` where `n` is the number of `Jump()` steps
+(`JUMP_STEPS + 1 - jump_steps at start`):
+
+| Bounce | start jump_steps | Jump() steps at 18.6 | Apex (units) | Steps to apex |
+|---|---|---|---|---|
+| `DownspikeBounce`, default config (Hunter, `SetStartWithDownSpikeBounce`, FSM pogo bounces) | 4 | 5 | 4.092 | 19 |
+| `DownspikeBounceSlightlyShort` | 5 | 4 | 3.744 | 18 |
+| `DownspikeBounceShort` | 7 | 2 | 3.048 | 16 |
+| `DownspikeBounce` with `Wanderer` config (`jumpSteps = 8`), started from vy <= 0 | 8 | 1 | 2.700 | 15 |
+
+These assume nothing else sets vy during the rise (no ceiling, no updraft, no damage; Jump release cannot cut
+it because `jumped_steps` starts at -20, see above). For the `SetStartWith*` variants the bounce happens when
+`RegainControl()` runs (from an FSM `End` state); the first `Jump()` step is the next `FixedUpdate`, so the
+rise from that point is the same.
 
 ### 4.3 Slash-type pogo (Wanderer, `NailSlash`)
 
@@ -511,11 +566,18 @@ damagers, so `DamageEnemies` evaluates damage itself. Then:
     the Wanderer config.
 - `HeroDownAttack.OnEndedDamage(didHit)`: if a bounce was queued, it calls `AffectedByGravity(true)` and
   `nailSlash.DoDownspikeBounce()` (Wanderer config).
-- `Wanderer` `HeroSlashBounceConfig` values were read from the game bundle
-  `dataassets/herobounceconfigs.bundle` (not in the text dumps): `jumpSteps = 8`, `jumpedSteps = -20`,
-  `hideSlashOnBounceCancel = False`. A `DownspikeBounce` with this config gives **1 fixed step** of
-  `Jump()` at 18.6 (`jump_steps` 8 -> 9). When it follows the default-config bounce, it resets `jump_steps` to 8,
-  which ends the remaining default-config rise after one more step.
+- `HeroSlashBounceConfig Wanderer` (`referenced-objects.txt`): `jumpSteps = 8`, `jumpedSteps = -20`,
+  `hideSlashOnBounceCancel = False`. It is the `bounceConfig` of `Attacks/Wanderer/DownSlash` and
+  `DownSlashAlt`. A `DownspikeBounce` with this config gives **1 fixed step** of `Jump()` at 18.6 (`jump_steps`
+  8 -> 9). When it follows the default-config bounce, it resets `jump_steps` to 8, which ends the remaining
+  default-config rise after one more step.
+- Resulting heights (method of 4.2): a Wanderer-config-only bounce rises 0.348 + 2.352 = **2.700 units**
+  (15 steps). When the hit lands before the `'Bounce'` frame, the default bounce runs first (`Jump()` at 18.6
+  every step), and the Wanderer re-bounce at the `'Bounce'` frame (0.12 s after the slash start) leaves exactly
+  one more `Jump()` step at 18.6. The total is then `(k + 1) x 0.348 + 2.352`, where `k` is the number of
+  `Jump()` steps already done by the default bounce. The hitbox is only on from 0.04 s (frame 1), so at normal
+  speed at most 0.08 s (about 4 fixed steps) passes between the hit and the `'Bounce'` frame: `k` is 0 to 4 and
+  the total is 2.700 to 4.092 units. The default bounce is still in its jump phase at that point.
 - Wanderer `downspikeRecoveryTime = 0.09`, so `downSpikeRecovery` after the bounce lasts 0.09 s.
 
 ### 4.4 `startWithDownSpikeBounce*` variants
@@ -541,8 +603,10 @@ order after `startWithAttack` / tool throw):
 - Callers found in the dumps: the `Crest Attacks` FSM (`Rpr Downslash Bounce`, `Witch Downslash Bounce`,
   `SpinBall Bounce`, `Shaman Downslash Bounce`, `Drill Bounce`), `Sprint` (3x `SetStartWithDownSpikeBounce`,
   4x `SetStartWithDashStabBounce`), `Harpoon Dash` (`SetStartWithDownSpikeBounce`, 2x
-  `SetStartWithHarpoonBounce`), `Wall Scramble` (`SetStartWithDownSpikeBounceSlightlyShort`), and
-  `SlideSurface.cs:575`.
+  `SetStartWithHarpoonBounce`), `Wall Scramble` (`SetStartWithDownSpikeBounceSlightlyShort`), `Tool Attacks`
+  (2x `SetStartWithDownSpikeBounce`), and `SlideSurface.cs:575`. `SetStartWithDownSpikeEnd` is called by
+  `Crest Attacks` (`ToolM Downslash End`), `Tool Attacks` (2x) and `Bind` (1x). All FSMs are on
+  `Hero_Hornet(Clone)` (`fsm_Hero_Hornet(Clone)_<FSM name>.txt`).
 - `DownAttack()` and `CancelDownSpike()` clear the queued flags (`CancelQueuedBounces`), and so does
   `CancelBounce()`.
 
@@ -554,7 +618,8 @@ separate mechanism. They are not called by the nail down-attack path.
 
 ## 5. Default config attack objects
 
-All five objects use the `Knight` tk2d library. `hero-configs.txt` lines 35-1890. Damage fields shared by all
+All five objects are children of `Hero_Hornet(Clone)/Attacks/Default` and use the `Knight` tk2d library
+(`hero-configs.txt` lines 35-1899, `hero-hierarchy.txt` lines 5138-6995). Damage fields shared by all
 five `DamageEnemies`:
 
 - `attackType = Nail`, `useNailDamage = True`, `nailDamageMultiplier = 1`, `damageDealt = 5`. `damageDealt` is
@@ -564,8 +629,9 @@ five `DamageEnemies`:
   `doesNotParry = False`, `firstHitFreeze = None`, `lagHitOptionsProfile = null`.
 
 Then imbuement, Warrior rage (`warriorDamageMultiplier = 1.25`, nail attack objects only) and Hunter combo
-multipliers are applied in `DamageEnemies` (crests.txt: `HunterComboHits=6 HunterComboDamageMult=1.3`,
-`HunterCombo2Hits=6 HunterCombo2DamageMult=1.3`, `HunterCombo2ExtraHits=6 HunterCombo2ExtraDamageMult=1.5`).
+multipliers are applied in `DamageEnemies` (`global-settings.txt`: `hunterComboHits = 6`,
+`hunterComboDamageMult = 1.3`, `hunterCombo2Hits = 6`, `hunterCombo2DamageMult = 1.3`, `hunterCombo2ExtraHits = 6`,
+`hunterCombo2ExtraDamageMult = 1.5`; `warriorDamageMultiplier = 1.25`).
 The combo is outside this page's scope.
 
 ### 5.1 Per-object values
@@ -573,8 +639,8 @@ The combo is outside this page's scope.
 | | Slash | AltSlash | UpSlash | DownSlash | WallSlash |
 |---|---|---|---|---|---|
 | Component | NailSlash | NailSlash | NailSlash | Downspike + HeroDownAttack | NailSlash |
-| Transform localPos | (-0.07, 0.00) | (-0.10, 0.03) | (-0.04, 0.19) | (0.69, -0.37) | (0.64, 0.01) |
-| Transform localScale (dump) | (0.90, 1.00, 1.00) | (0.90, 1.00, 1.00) | (1.00, 0.90, 1.00) | (1.20, 1.20, 1.33) | (-0.90, 1.00, 1.00) |
+| Transform localPos | (-0.07, 0, -0.001) | (-0.097, 0.027, -0.001) | (-0.04, 0.19, -0.001) | (0.69, -0.37, -0.001) | (0.641, 0.008, -0.001) |
+| Transform localScale (dump) | (0.9, 1, 1) | (0.9, 1, 1) | (1, 0.9, 1) | (1.2, 1.2, 1.33) | (-0.9, 1, 1) |
 | `scale` field (written to localScale at each start, no Long Needle) | (0.90, 1.00, 1.00) | (0.90, 1.00, 1.00) | (1.00, 0.90, 1.00) | (1.00, 1.00, 1.00) | (-0.90, 1.00, 1.00) |
 | animName | SlashEffect | SlashEffectAlt | UpSlashEffect | DownSlashEffect | SlashEffect |
 | imbuedSlashAnimName | SlashEffect_Glow | SlashEffectAlt_Glow | UpSlashEffect_Glow | DownSlashEffect_Glow | SlashEffect_Glow |
@@ -597,8 +663,8 @@ by `HitInstance.GetOverriddenDirection`. That value is used by `HealthManager` (
 `HitResponse`, `BouncePod`, `BounceBalloon`, `HealthFlyer`, `HealthCocoon`, `BreakablePoleSimple` and
 `ActivatorPlatform`.
 
-Long Needle (`gameplay-settings.txt`: `longNeedleMultiplier = (1.20, 1.08)`): `OnSlashStarting` multiplies
-`scale` by (1.20, 1.08), or by the swapped (1.08, 1.20) while `cState.upAttacking`, unless
+Long Needle (`global-settings.txt`: `longNeedleMultiplier = (1.2, 1.075)`): `OnSlashStarting` multiplies
+`scale` by (1.2, 1.075), or by the swapped (1.075, 1.2) while `cState.upAttacking`, unless
 `overrideLongNeedleScale` (False on all five).
 
 ### 5.2 Collider shapes (PolygonCollider2D, trigger, offset (0,0), local points, disabled at rest)
@@ -613,8 +679,10 @@ Long Needle (`gameplay-settings.txt`: `longNeedleMultiplier = (1.20, 1.08)`): `O
 - **WallSlash**: (-1.413,1.144) (-2.569,0.652) (-3.359,-0.139) (-3.342,-0.836) (-2.551,-1.321) (-1.153,-1.424)
   (0.565,-1.069) (0.26,-0.629) (0.128,0.732) (0.215,1.202)
 
-Each object also has a `Clash Tink` child (`PolygonCollider2D`, `NailSlashTerrainThunk`, `Rigidbody2D`). It is
-enabled together with the main polygon and an `Imbuement` child sprite.
+All five objects are tagged `Nail Attack` on layer `Attack` (17). Each also has a `Clash Tink` child (layer
+`Tinker` (16), `PolygonCollider2D` with `trigger = False`, `NailSlashTerrainThunk`, `Rigidbody2D`), enabled
+together with the main polygon, and an `Imbuement` child sprite. DownSlash `Clash Tink` points: (-0.087,0.147)
+(0.001,-0.559) (-1.235,-1.536) (-1.746,-1.751) (-1.607,-1.185) (-0.969,0.056).
 
 ### 5.3 Hitbox timing of the NailSlash objects
 
@@ -685,23 +753,54 @@ Witch/Cursed and Anklet are combined.
 
 - Global transitions `FSM CANCEL`, `HERO DAMAGED`, `LEVEL LOADED` and `CREST ATTACK CANCEL` go to `Cancel`.
   `FinishDownspike()` sends `CREST ATTACK CANCEL`.
-- The `End` and `Rpr/Witch/Shaman/ToolM ... End` states call `FinishDownspike(true)` and clear `downAttacking`.
-  Several states use `SendMessage` actions whose method names are not in the dump.
+- The `Rpr/Witch/Shaman/ToolM ... End` and `SpinBall End` states call `FinishDownspike(true)` and clear
+  `downAttacking` (`SetCState("downAttacking", false)`). The shared `End` state clears `downAttacking` and
+  `downTravelling`, and sends `RegainControl` and `StartAnimationControlToIdle` to the hero; that
+  `RegainControl` is what consumes a `startWithDownSpikeBounce` flag set by a `... Bounce` state (each
+  `... Bounce` state goes to `End` on `FINISHED`; `SpinBall Bounce` can instead go to `SpinBall Stop` on
+  `NO BOUNCE`). The bounce is therefore the default-config `DownspikeBounce(false)` (apex 4.092 units,
+  section 4.2).
+- `SendMessage` calls to the hero, per antic state: `Rpr Downslash Antic`, `SpinBall Antic`,
+  `Shaman Downslash Antic` and `ToolM ChargeStart` send `RelinquishControlNotVelocity`, `StopAnimationControl`
+  and `AffectedByGravity(false)`. `Witch Downslash Antic` sends `RelinquishControlNotVelocity` and
+  `StopAnimationControl` (its `RelinquishControl` action is disabled); `Witch Downslash` then sends
+  `AffectedByGravity(false)` and later `AffectedByGravity(true)`. Gravity is restored by
+  `AffectedByGravity(true)` in `Shaman Downslash`, `SpinBall Launch` and `Rpr Downslash Fall`, and by
+  `FinishDownspike` -> `ResetGravity()`.
+- The attack objects are started with `SendMessage StartSlash` on the `Crest Attacks` variables
+  `Rpr DownSlash` = `Attacks/Scythe/DownSlash New`, `Witch Downslash` = `Attacks/Witch/DownSlash New`,
+  `Shaman Downslash` = `Attacks/Shaman/DownSlash`, `Toolmaster Downslash` = `Attacks/Toolmaster/DownSlash New`,
+  `Toolmaster Downslash Charged` = `Attacks/Toolmaster/DownSlash New Charged` (all under `Hero_Hornet(Clone)`),
+  and `Current SpinSlash` (Warrior `SpinSlash` / `SpinSlashRage`). `Cancel` sends `CancelAttack` /
+  `FullCancelAttack` to `Current SpinSlash`, `CancelAttack` to `Current DrillSlash`, and
+  `CancelLagHitsForSource(Witch Downslash)` to `Attack Target`.
 - For Custom types `cState.attacking` is set by `Attack()` with the config's `attackDuration`, and
   `DidAttack()` sets `attack_cooldown`.
 
-`Dealt Damage Response` FSMs on down-slash objects. These forward hits to `Crest Attacks`:
+`Dealt Damage Response` FSMs on the custom down-slash objects. They forward hits to `Crest Attacks`. Each dump
+file name carries the full object path:
 
-- `fsm_DownSlash_Dealt Damage Response.txt` (on an object named `DownSlash`; the Shaman `DownSlash` is the only
-  config DownSlash object listed with a `PlayMakerFSM`, and `Crest Attacks` variable `Shaman Downslash =
-  DownSlash`). It has the same content as the `DownSlash New Charged` dump. On `HIT LANDED` it checks
-  `CanCustomRecoil` and sets `Crest Attacks.Attack Target`, then sends `ATTACK LANDED`. On a trigger enter with
-  layer 19 (`HIT INTERACTIVE`) it checks `CanCustomRecoil` and the `NonBouncer` component, then sends
-  `BOUNCE TINKED`.
-- `fsm_DownSlash New_Dealt Damage Response.txt`: the same pattern, but it triggers on `DEALT ACTUAL DAMAGE`
-  instead of `HIT LANDED`, also stores `Attack Target Y`, and has an `ATTACK BLOCKED` -> `Send Blocked`
-  (`BOUNCE TINKED`) path. Three different objects are named `DownSlash New` (Scythe, Witch and Toolmaster).
-  Which of them this dump belongs to is not determinable from the dump.
+| Object (`Hero_Hornet(Clone)/Attacks/...`) | Dump file | Variant |
+|---|---|---|
+| `Scythe/DownSlash New` (Reaper) | `fsm_Hero_Hornet(Clone)~Attacks~Scythe~DownSlash New_Dealt Damage Response.txt` | A |
+| `Toolmaster/DownSlash New` | `fsm_Hero_Hornet(Clone)~Attacks~Toolmaster~DownSlash New_Dealt Damage Response.txt` | A |
+| `Toolmaster/DownSlash New Charged` | `fsm_Hero_Hornet(Clone)~Attacks~Toolmaster~DownSlash New Charged_Dealt Damage Response.txt` | A |
+| `Shaman/DownSlash` | `fsm_Hero_Hornet(Clone)~Attacks~Shaman~DownSlash_Dealt Damage Response.txt` | A |
+| `Witch/DownSlash New` | `fsm_Hero_Hornet(Clone)~Attacks~Witch~DownSlash New_Dealt Damage Response.txt` | B |
+
+The four variant-A files are identical apart from the object path.
+
+- Variant A: `State 1` listens for `HIT LANDED` and runs a `Trigger2dEventLayer` (`OnTriggerEnter2D`, layer 19
+  = `Interactive Object`) that stores the collider's object and sends `HIT INTERACTIVE`.
+  - `HIT LANDED` -> `Send Event`: `CallMethodProper HeroController.CanCustomRecoil`; if false -> `CANCEL`. Else it
+    sets `Crest Attacks.Attack Target` and sends `ATTACK LANDED` to `Crest Attacks`.
+  - `HIT INTERACTIVE` -> `Check`: `CanCustomRecoil` false -> `CANCEL`; object has `NonBouncer` -> `CANCEL`;
+    otherwise `Bounce Tink`: sends `BOUNCE TINKED` and sets `Attack Target`, then goes on to `Send Event`.
+  - `CANCEL` and `FINISHED` go to `Clear Hit Object` (clears `Hit Object`) and back to `State 1`.
+- Variant B (Witch) differs: `State 1` listens for `DEALT ACTUAL DAMAGE` instead of `HIT LANDED`, and has an
+  `ATTACK BLOCKED` -> `Send Blocked` path (sets `Attack Target`, sends `BOUNCE TINKED`). `Bounce Tink` also reads
+  the hit object's world y and writes it to `Crest Attacks.Attack Target Y`. There is no `Clear Hit Object`
+  state; `CANCEL` / `FINISHED` return directly to `State 1`.
 
 ---
 
@@ -751,9 +850,17 @@ Witch/Cursed and Anklet are combined.
   -> `DownspikeBounce`). `BouncePod.DoBounceOff`.
 - `tk2dSpriteAnimator` (`TeamCherry.TK2D.dll`): `Play(clip, clipStartTime, overrideFps)`,
   `WarpClipToLocalTime`, `UpdateAnimation`, `ProcessEvents`, `PlayFromFrame`.
-- Data: `raw-dump/hero-configs.txt`, `raw-dump/crests.txt`, `raw-dump/hero-animations.txt`,
-  `raw-dump/hero-controller.txt`, `raw-dump/gameplay-settings.txt`, `raw-dump/fsm_Hero_Hornet(Clone)_Crest
-  Attacks.txt`, `raw-dump/fsm_DownSlash*_Dealt Damage Response.txt`. Game files outside the dumps:
-  `globalgamemanagers` (TimeManager fixed timestep) and
-  `StreamingAssets/aa/StandaloneWindows64/dataassets_assets_assets/dataassets/herobounceconfigs.bundle`
-  (Wanderer bounce config).
+- `InputHandler`: `UpdateButtonQueueing`, `GetWasButtonPressedQueued`.
+- Data (`raw-dump/`):
+  - `engine-settings.txt`: `Time.fixedDeltaTime`, `Physics2D.gravity`, layers.
+  - `hero-controller.txt`: `HeroController` fields and constants.
+  - `hero-hierarchy.txt`: hero `Rigidbody2D`, attack objects under `Hero_Hornet(Clone)/Attacks/...` (components,
+    colliders, tags, layers).
+  - `hero-configs.txt`: config groups and their attack objects. `crests.txt`: crest -> `heroConfig`.
+  - `referenced-objects.txt`: `HeroSlashBounceConfig Wanderer`.
+  - `animations-tk2d.txt`: tk2d clips (Knight, Hornet CrestWeapon * libraries).
+  - `global-settings.txt`: `longNeedleMultiplier`, Hunter combo and Warrior rage values.
+  - `input-handler.txt`: `BUTTON_QUEUE_TIME`.
+  - `fsm_Hero_Hornet(Clone)_Crest Attacks.txt`, `fsm_Hero_Hornet(Clone)~Attacks~*~DownSlash*_Dealt Damage
+    Response.txt`, `fsm_Hero_Hornet(Clone)_Sprint.txt`, `fsm_Hero_Hornet(Clone)_Harpoon Dash.txt`,
+    `fsm_Hero_Hornet(Clone)_Wall Scramble.txt`.

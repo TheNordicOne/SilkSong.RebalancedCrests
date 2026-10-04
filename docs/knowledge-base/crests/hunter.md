@@ -6,11 +6,25 @@ The Hunter crest exists as three separate `ToolCrest` assets that form an upgrad
 
 ## 1. Assets, slots, config
 
-| Crest ID | `isHidden` | `previousVersion` | `heroConfig` | Gameplay field |
-|---|---|---|---|---|
-| `Hunter` | False | null | null | `Gameplay.hunterCrest` |
-| `Hunter_v2` | False | `Hunter` | null | `Gameplay.hunterCrest2` |
-| `Hunter_v3` | False | `Hunter_v2` | null | `Gameplay.hunterCrest3` |
+| Crest ID | `isHidden` | `previousVersion` | `upgradedVersion` | `heroConfig` | Gameplay field |
+|---|---|---|---|---|---|
+| `Hunter` | False | null | `Hunter_v2` | null | `Gameplay.hunterCrest` |
+| `Hunter_v2` | False | `Hunter` | `Hunter_v3` | null | `Gameplay.hunterCrest2` |
+| `Hunter_v3` | False | `Hunter_v2` | null | null | `Gameplay.hunterCrest3` |
+
+Localised fields (`crests.txt`):
+
+| Field | Hunter | Hunter_v2 / Hunter_v3 |
+|---|---|---|
+| `displayName` | `Tools/CREST_HUNTER_NAME` → "Hunter" | `Tools/CREST_HUNTER_NAME` → "Hunter" |
+| `description` | `Tools/CREST_HUNTER_DESC` → "Stalk prey and attack with lethal strikes." | `Tools/CREST_HUNTER_UPGRADED_DESC` → "Stalk prey and attack with lethal strikes. Build focus with successive strikes." |
+| `itemNamePrefix` | `Tools/UI_MSG_TITLE_CREST` → "Bound the Crest of" | same |
+| `getPromptDesc` | empty | empty |
+| `equipText` | `Tools/UI_MSG_EQUIP_CREST` → "To change Crest, open the Crest screen of the Menu while resting at a bench." | same |
+| `crestSprite` | Crest__0014_hunter_lvl2 | Crest__0014_hunter_lvl3 / Crest__0014_hunter_lvl4 |
+| `hasCustomAction` | False | False |
+
+All three versions are displayed with the same name; only the description and sprites differ.
 
 - New game: `PlayerData.CurrentCrestID` defaults to `"Hunter"` and `ToolEquips` starts with `"Hunter"` unlocked.
 - Unlocking `Hunter_v2`/`Hunter_v3` copies the previous version's slot save data (equipped tools and unlocked flags). If the previous version is equipped, the game switches to the new version automatically (`ToolCrest.Unlock`). Once an upgrade is unlocked, the lower version is no longer visible in the inventory.
@@ -29,6 +43,8 @@ The Hunter crest exists as three separate `ToolCrest` assets that form an upgrad
 | 5 | Blue | True | Neutral (unused for Blue) |
 | 6 | Yellow | True | Neutral (unused for Yellow) |
 
+Slot positions differ slightly between versions (e.g. slot[4] y = -2.52 on Hunter/Hunter_v2 and -2.32 on Hunter_v3; slot[5]/[6] x = ±2.53 on Hunter and ±2.62 on v2/v3). Navigation indices are identical.
+
 Totals: 7 slots: Red 2 (1 locked), Blue 2 (1 locked), Yellow 2 (1 locked), Skill 1 (0 locked). 4 are open from the start and 3 are locked.
 
 Attack bindings: Neutral → the Skill slot (3); Up → Red slot 0; Down → Red slot 4 (after it is unlocked). If the Up or Down binding has no tool, that input uses the Neutral (Skill) tool (`GetBoundAttackTool`, `ToolEquippedReadSource.Active`).
@@ -37,7 +53,7 @@ Attack bindings: Neutral → the Skill slot (3); Up → Red slot 0; Down → Red
 
 All three crests have `heroConfig = null`. In `HeroController.ResetAllCrestState` this sets `crestConfig = null`, and `UpdateConfig()` then calls `SetConfigGroup(configs[0], null)`. As a result:
 
-- `HeroController.Config` is the `Default` asset (instanceId 73424). The dump confirms `crestConfig = null` with `CurrentCrestID = "Hunter_v3"`.
+- `HeroController.Config` is the `Default` asset (`HeroControllerConfig Default`, instanceId 76908 in the dump). The dump confirms `crestConfig = null` with `CurrentCrestID = "Hunter_v3"`.
 - The active attack objects are those under the `Default` ActiveRoot. No `specialConfigs` override applies.
 - `Default.heroAnimOverrideLib = null`, so every animation clip comes from the base `Knight` library (or the windy library in wind/updraft).
 - All three versions share the same values, attack objects and animations. Nothing in `HeroControllerConfig` tells them apart.
@@ -75,21 +91,32 @@ All three crests have `heroConfig = null`. In `HeroController.ResetAllCrestState
 
 `Default` attack objects (configs[0], `hero-configs.txt`):
 
-| Slot in ConfigGroup | Object | Components of note | DamageEnemies: attackType / useNailDamage / nailDamageMultiplier / silkGeneration |
-|---|---|---|---|
-| NormalSlash | `Slash` | NailSlash, DamageEnemies, NailSlashRecoil | Nail / True / 1 / Full |
-| AlternateSlash | `AltSlash` | NailSlash, DamageEnemies, NailSlashRecoil | Nail / True / 1 / Full |
-| UpSlash | `UpSlash` | NailSlash, DamageEnemies, NailSlashRecoil | Nail / True / 1 / Full |
-| AltUpSlash | null | | |
-| DownSlash | `DownSlash` | Downspike, DamageEnemies, HeroDownAttack | Nail / True / 1 / Full |
-| AltDownSlash | null | | |
-| WallSlash | `WallSlash` | NailSlash, DamageEnemies, NailSlashRecoil | Nail / True / 1 / Full |
-| DashStab | `Dash Stab` | DamageEnemies, DashStabNailAttack | Nail / True / 1 / Full |
-| DashStabAlt | null | | |
-| ChargeSlash | `Charge Slash Basic` | HeroExtraNailSlash; children `slash 01`, `slash 02` with DamageEnemies | Heavy / True / 1.4 / Full (both children) |
-| TauntSlash | `Taunt Slash` | DamageEnemies | Nail / True / 0.5 / Full |
+| Slot in ConfigGroup | Object path (under `Hero_Hornet(Clone)/`) | Tag / layer | Components of note | DamageEnemies: attackType / useNailDamage / nailDamageMultiplier / silkGeneration / direction / magnitudeMult |
+|---|---|---|---|---|
+| NormalSlash | `Attacks/Default/Slash` | Nail Attack / Attack | NailSlash, DamageEnemies, NailSlashRecoil | Nail / True / 1 / Full / 0 / 1 |
+| AlternateSlash | `Attacks/Default/AltSlash` | Nail Attack / Attack | NailSlash, DamageEnemies, NailSlashRecoil | Nail / True / 1 / Full / 0 / 1 |
+| UpSlash | `Attacks/Default/UpSlash` | Nail Attack / Attack | NailSlash, DamageEnemies, NailSlashRecoil | Nail / True / 1 / Full / 0 / 1 |
+| AltUpSlash | null | | | |
+| DownSlash | `Attacks/Default/DownSlash` | Nail Attack / Attack | Downspike, DamageEnemies, HeroDownAttack | Nail / True / 1 / Full / 270 / 1 |
+| AltDownSlash | null | | | |
+| WallSlash | `Attacks/Default/WallSlash` | Nail Attack / Attack | NailSlash, DamageEnemies, NailSlashRecoil | Nail / True / 1 / Full / 0 / 1 |
+| DashStab | `Attacks/Default/Dash Stab` | Nail Attack / Attack | DamageEnemies, DashStabNailAttack | Nail / True / 1 / Full / 0 / 1 |
+| DashStabAlt | null | | | |
+| ChargeSlash | `Attacks/Charge Slash Basic` | Untagged / Default | HeroExtraNailSlash (no DamageEnemies on the parent) | – |
+| ↳ child | `Attacks/Charge Slash Basic/slash 01` | Nail Attack / Attack | DamageEnemies, NailSlashTerrainThunk | Heavy / True / 1.4 / Full / 180 / 0.5 |
+| ↳ child | `Attacks/Charge Slash Basic/slash 02` | Nail Attack / Attack | DamageEnemies, NailSlashTerrainThunk | Heavy / True / 1.4 / Full / 180 / 1 |
+| TauntSlash | `Taunt Slash` (shared, not under `Default`) | Nail Attack / Attack | DamageEnemies | Nail / True / 0.5 / Full / 180 / 0 (also `stunDamage = 0.5`, `doesNotTink = True`) |
 
-All listed damagers have `damageDealt = 5` (not used when `useNailDamage = True`), `useHeroDamageAffectors = False`, `damageMultPerHit` empty and `multiHitter = False`.
+All listed damagers have `damageDealt = 5` (not used when `useNailDamage = True`), `useHeroDamageAffectors = False`, `damageMultiplier = 1`, `damageMultPerHit` empty, `multiHitter = False` and `canWeakHit = False`; all except Taunt Slash have `stunDamage = 1`. The `Clash Tink` and `Imbuement` children of the slash objects are also tagged `Nail Attack`.
+
+The dumped `isNailAttack` field reads `True` on the active Default slash objects and `False` on `slash 01`, `slash 02` and `Taunt Slash`. Those three objects were inactive (`activeSelf = False`) when dumped, so `DamageEnemies.Start()`, which sets `isNailAttack = gameObject.CompareTag("Nail Attack")`, had not yet run on them. Their tag is `Nail Attack`, so `isNailAttack` becomes `True` once they are activated. No game code or dumped FSM changes the tag of these objects at runtime (the only tag setters are the PlayMaker actions `SetTag`/`SetTagsOnChildren`, which no dumped FSM uses).
+
+`Charge Slash Basic` hitbox timing (Animator clip `Hornet Charge Slash Basic`, length 0.4167 s, 24 fps, `animator-timelines.txt`), measured from activation of `Charge Slash Basic`:
+
+| Child | Active from | Active until | Duration |
+|---|---|---|---|
+| `slash 01` | 0 s (0f@60) | 0.0833 s (5f@60) | 0.0833 s |
+| `slash 02` | 0.2167 s (13f@60) | 0.3 s (18f@60) | 0.0833 s |
 
 ---
 
@@ -154,7 +181,7 @@ else if ((Gameplay.HunterCrest2.IsEquipped || Gameplay.HunterCrest3.IsEquipped)
 `NailHitEnemy` is called from `HealthManager.TakeDamage` (switch on `hitInstance.AttackType`) for:
 - `AttackTypes.Nail`
 - `AttackTypes.NailBeam`
-- `AttackTypes.Heavy` when `DamageEnemies.IsNailAttackObject(hitInstance.Source)` is true, meaning the source is tagged `"Nail Attack"` or has a `HeroExtraNailSlash` parent. `Charge Slash Basic` has `HeroExtraNailSlash`, so its `Heavy` hits count.
+- `AttackTypes.Heavy` when `DamageEnemies.IsNailAttackObject(hitInstance.Source)` is true, meaning the source is tagged `"Nail Attack"` or has a `HeroExtraNailSlash` parent. `slash 01`/`slash 02` satisfy both conditions (tag `Nail Attack`, parent `Charge Slash Basic` with `HeroExtraNailSlash`), so Needle Strike `Heavy` hits count.
 
 Every call adds exactly +1. All conditions together:
 
@@ -218,8 +245,9 @@ Resulting values:
 Which attacks are boosted:
 - Only damagers with `useNailDamage` or `useHeroDamageAffectors` set.
 - Of those, only when `attackType` is `Nail` or `NailBeam`, or `isNailAttack` is true (`isNailAttack` = the GameObject has tag `"Nail Attack"`, set in `DamageEnemies.Start`).
-- `Default` objects `Slash`, `AltSlash`, `UpSlash`, `DownSlash`, `WallSlash`, `Dash Stab`, `Taunt Slash` are `Nail` + `useNailDamage`, so they are boosted.
-- `Charge Slash Basic` children (`slash 01`, `slash 02`) are `Heavy`. They are boosted only if they carry the `"Nail Attack"` tag. The dump does not include GameObject tags, and its `isNailAttack = False` was captured on inactive objects before `Start`, so this **cannot be determined from the dumped data**. Their hits do increment the meter (section 3.3).
+- `Default` objects `Slash`, `AltSlash`, `UpSlash`, `DownSlash`, `WallSlash`, `Dash Stab` are `Nail` + `useNailDamage` (and tagged `Nail Attack`), so they are boosted.
+- Needle Strike (`Charge Slash Basic` children `slash 01`, `slash 02`) is `Heavy`, but both children are tagged `"Nail Attack"` (`hero-configs.txt`, `hero-hierarchy.txt`), so `isNailAttack` is true and their hits **are boosted** by the Hunter_v2/v3 multiplier. Because they enter the same branch, the silk taunt (×1.5) and Barbed Wire (×1.25) multipliers also apply to them. Their hits also increment the meter (section 3.3).
+- `Taunt Slash` is `Nail` + `useNailDamage` and tagged `Nail Attack`, so it is boosted.
 - Tools and silk skills are not boosted (they use the `representingTool` branch).
 
 How the multiplier combines (`DamageStack.PopDamage`):
@@ -252,12 +280,12 @@ The effect is visual only. The damage change happens in `DamageEnemies`.
 | Any `TOOL EQUIPS CHANGED` event | `HeroController` subscribes `ResetAllCrestState` (registered in `Awake`) | Yes (unless `IsChangingActiveState`) |
 | … crest change | `SetEquippedCrest` queues the event; `AutoEquip` sends it | Yes |
 | … tool equip changes | `SetEquippedTools` / `SetExtraEquippedTool` / `AutoEquip(ToolItem)` / `RemoveToolFromAllCrests` / `ResetPreviousCrest` (via `SendEquippedChangedEvent`) | Yes, when the event is sent |
-| … tool replenish | `ToolItemManager.TryReplenishTools(doReplenish: true, …)` → `SendEquippedChangedEvent(force: true)`. In the dumped FSMs the only `DoReplenish = True` call is in the `Bind` FSM state `Quick Craft Burst`, which is only reached through the `Quick Craft?` state (`CheckIfCrestEquipped Toolmaster`, otherwise FALSE). Other FSMs that call it (e.g. benches) are not in the dump. | Yes |
+| … tool replenish | `ToolItemManager.TryReplenishTools(doReplenish: true, …)` → `SendEquippedChangedEvent(force: true)`. The dumped FSMs contain two `DoReplenish = True` calls: (1) `Bind` FSM state `Quick Craft Burst`, only reached through `Quick Craft?` (`CheckIfCrestEquipped Toolmaster` → else FALSE, then `Was Up Pressed` must be true); (2) `Inventory Control` FSM state `Cheat Tool Change?` (`Method = Bench`), reached only when `PlayerData.atBench` is false and `CheatManager.CanChangeEquipsAnywhere` is true. Bench FSMs are not in the dump. | Yes |
 | … `PlayerData.ClearToolAmountsOverride`, `PlayerData.OnBeforeSave` (when it restores a temp crest), collecting a tool pouch (`PlayerDataCollectable`), PlayMaker `SendToolEquipChanged` | `SendEquippedChangedEvent` | Yes |
 | … `ToolItemManager.SetActiveState` (entering/leaving tool cutscene state) | `SendEquippedChangedEvent(force: true)` with `IsChangingActiveState = true` | **No** |
 | Death | `HeroController.Die` → `EventRegister.SendEvent("TOOL EQUIPS CHANGED")` → `ResetAllCrestState()`. The lethal hit itself has already reset the meter through `TakeDamage`. | Yes |
 | Respawn after death | `HeroController.Respawn` (`wasDead`) → `MaxHealth()` → `ResetAllCrestState()` | Yes |
-| `HeroController.MaxHealth()` in general | `ResetAllCrestState()`. Known callers: `Respawn`, `HeroSlabCapture.ApplyCaptured`, `BossSequenceController` (l.431). Callers through reflection-based FSM actions cannot be ruled out from the dumps. | Yes |
+| `HeroController.MaxHealth()` in general | `ResetAllCrestState()`. Known callers: `Respawn`, `HeroSlabCapture.ApplyCaptured`, `BossSequenceController` (l.431). No dumped FSM calls `MaxHealth` by method name; scene and bench FSMs are not part of the dump. | Yes |
 | `MaxHealthKeepBlue()` (memory scene entry, `HeroControllerMethods`) | does not reset crest state | No |
 | Becoming maggoted | `SetIsMaggoted(true)` → `ResetAllCrestState()` | Yes |
 | Clearing effects | `ClearEffects` / `ClearEffectsLite` / `ClearEffectsInstant` → `ResetAllCrestState(clearHunterState: false)` (e.g. `Respawn`, leaving a memory scene, PlayMaker `ClearHeroEffects*`) | **No** |
@@ -269,7 +297,7 @@ Things that do not reset the meter:
 - Time: there is no decay or timer.
 - Missing an attack, or hitting a non-enemy.
 - Scene transitions: no transition code path calls these resets directly, only the triggers listed above.
-- Binding (healing): the Bind FSM's only replenish/equip-change call (`Quick Craft Burst`) is gated to `Toolmaster`.
+- Binding (healing): the Bind FSM's only replenish/equip-change call (`Quick Craft Burst`) is gated to `Toolmaster` with Up held.
 
 Unlocking `Hunter_v3` while `Hunter_v2` is equipped switches crests through `SetEquippedCrest`. That only queues `TOOL EQUIPS CHANGED`, so the meter is cleared when the queued event is next sent.
 
@@ -302,7 +330,8 @@ Decompiled (`scratchpad/decomp/`):
   - `TakeQuickDamage` (l.5137), `DoSpecialDamage` (l.5184, reset l.5207), `TakeDamage` (l.5280, reset l.5512).
   - `NailHitEnemy` (l.5880, increment l.5914–5916), `ResetAllCrestStateMinimal` (l.5947), `ResetAllCrestState` (l.5958/5963), `ResetHunterUpgCrestState` (l.6008).
   - `MaxHealth` (l.6321, reset l.6328), `Respawn` (l.7139), `Die` (l.9325, event l.9460), `ClearEffectsLite` (l.12057, l.12061).
-- `DamageEnemies.cs` – `Start` sets `isNailAttack` (l.557), `IsNailAttackObject` (l.904), `DoDamage` hunter multipliers (l.973–997), `hitInstance.HunterCombo` (l.1159).
+- `DamageEnemies.cs` – `Start` sets `isNailAttack` (l.557), `IsNailAttackObject` (l.904), `DoDamage` hunter multipliers (l.973–997), `hitInstance.HunterCombo` (l.1159), `hitInstance.IsNailTag = isNailAttack` (l.1164).
+- `HutongGames.PlayMaker.Actions/SetTag.cs`, `SetTagsOnChildren.cs` – the PlayMaker tag setters (not used by any dumped FSM).
 - `DamageStack.cs` – additive multiplier math.
 - `HealthManager.cs` – `Hit` (l.779), `TakeDamage` (l.943), combo effect (l.1023–1050), `NailHitEnemy` call (l.1105–1109), silk gain conditions (l.1111).
 - `BindOrbHudFrame.cs` – crest frame selection (l.292–333), `HunterCrestV2Routine`/`V3Routine` (l.716–724), `HunterCrestUpgradedRoutine` (l.726–813).
@@ -313,10 +342,14 @@ Decompiled (`scratchpad/decomp/`):
 - `HitSilkGeneration.cs` (`Full`, `FirstHit`, `None`), `AttackTypes.cs`.
 
 Dumps (`raw-dump/`):
-- `crests.txt` – Hunter slots, `heroConfig=null`, Gameplay hunter combo values.
-- `gameplay-settings.txt` – `hunterCrest*`, `hunterCombo*`, `hunterComboDamageEffect`, `hunterCombo2DamageExtraScale`.
-- `hero-configs.txt` – `configs[0]` Default values and attack objects (l.1–3002).
-- `hero-controller.txt` – `crestConfig = null`, `CurrentCrestID = "Hunter_v3"`, `hunterUpgState`.
-- `hero-animations.txt` – base `Knight` library.
-- `fsm_Hero_Hornet(Clone)_Bind.txt` – `TryReplenishTools` in `Quick Craft Burst`.
+- `crests.txt` – Hunter slots (type/lock/binding/position/navigation), `heroConfig = null`, localised fields, sprites, `upgradedVersion`.
+- `global-settings.txt` – `GlobalSettings.Gameplay`: `hunterCrest*`, `hunterCombo*`, `hunterComboDamageEffect`, `hunterCombo2DamageExtraScale`, `barbedWireDamageDealtMultiplier`.
+- `hero-configs.txt` – `configs[0]` Default values and attack objects with tags, layers and `DamageEnemies` fields (l.1–3013).
+- `hero-hierarchy.txt` – full hero tree; `Charge Slash Basic` (l.29014), `slash 01` (l.29104, `tag=Nail Attack`), `slash 02` (l.29312, `tag=Nail Attack`).
+- `hero-controller.txt` – `crestConfig = null`, `PlayerData.CurrentCrestID = "Hunter_v3"`, `hunterUpgState.CurrentMeterHits = 0`.
+- `referenced-objects.txt` – `HeroControllerConfig Default`.
+- `animations-tk2d.txt` – base `Knight` library (501 clips).
+- `animator-timelines.txt` – `Charge Slash Basic` clip: `slash 01`/`slash 02` activation times.
+- `fsm_Hero_Hornet(Clone)_Bind.txt` – `TryReplenishTools` in `Quick Craft Burst`, `Quick Craft?` gating.
+- `fsm__GameCameras~HudCamera~In-game~Inventory_Inventory Control.txt` – `TryReplenishTools` in `Cheat Tool Change?`.
 - `fsm_Hero_Hornet(Clone)_Sprint.txt` – `Hunter SprintAttackBurst`.

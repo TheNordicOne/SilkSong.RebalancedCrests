@@ -1,6 +1,6 @@
 # Crest System
 
-How crests are represented and applied in the current game code. All values are taken from the runtime dump (`raw-dump/`) and the decompiled game assembly.
+How crests are represented and applied in the current game code. All values are taken from the runtime dump (`raw-dump/`) and the decompiled game assembly. Unity `instanceId` values quoted below are from one dump session and differ between game sessions; asset names are stable.
 
 ---
 
@@ -12,20 +12,20 @@ How crests are represented and applied in the current game code. All values are 
 
 | Field | Type | Meaning |
 |---|---|---|
-| `displayName` | `LocalisedString` | Name shown in the inventory. |
+| `displayName` | `LocalisedString` (sheet + key) | Name shown in the inventory. |
 | `description` | `LocalisedString` | Inventory description. |
-| `itemNamePrefix` | `LocalisedString` | Prefix used in item-get prompts. |
-| `getPromptDesc` | `LocalisedString` (not required) | Description on the item-get prompt. |
-| `equipText` | `LocalisedString` | Text shown when equipping. |
+| `itemNamePrefix` | `LocalisedString` | Prefix used in item-get prompts (`Tools/UI_MSG_TITLE_CREST` = "Bound the Crest of" for all crests except `Cursed`). |
+| `getPromptDesc` | `LocalisedString` (not required) | Description on the item-get prompt. Empty for Hunter/Hunter_v2/Hunter_v3/Cloakless; same key as `description` for the other base crests. |
+| `equipText` | `LocalisedString` | Text shown when equipping (`Tools/UI_MSG_EQUIP_CREST` for all crests except `Cursed`). |
 | `crestSprite`, `crestSilhouette`, `crestGlow` | `Sprite` | Inventory art. `crestSprite` is also the popup icon (`GetPopupIcon`). |
 | `isHidden` | `bool` | Hidden crests are only visible in the inventory while equipped (see `IsVisible`). |
 | `displayPrefab` | `GameObject` | Inventory display prefab. |
 | `slots` | `SlotInfo[]` | Tool slots (section 2). |
-| `hasCustomAction`, `customButtonCombo` | `bool`, `InventoryItemComboButtonPromptDisplay.Display` | Inventory button prompt for a crest-specific action. |
+| `hasCustomAction`, `customButtonCombo` | `bool`, `InventoryItemComboButtonPromptDisplay.Display` | Inventory button prompt for a crest-specific action. Only `Toolmaster` has `hasCustomAction = True`: `ActionButton = CAST`, `DirectionModifier = Up`, `PromptText = Tools/PROMPT_QUICK_CRAFT` ("Craft Bind"), `ShowHold = False`. All other crests: `False` with the default `JUMP` / `Neutral` / empty prompt. |
 | `heroConfig` | `HeroControllerConfig` | Movement/attack configuration applied while equipped (section 3). `null` means the `Default` config is used. |
 | `previousVersion` | `ToolCrest` | The crest this one upgrades from (section 4). |
 
-Non-serialized: `oldPreviousVersion`, `upgradedVersion` (filled by `OnValidate`/`OnEnable`: `previousVersion.upgradedVersion = this`), a cached `name`.
+Non-serialized: `oldPreviousVersion`, `upgradedVersion` (filled by `OnValidate`/`OnEnable`: `previousVersion.upgradedVersion = this`), a cached name (`cachedName`, `nameCache`). Runtime values: `Hunter.upgradedVersion = Hunter_v2`, `Hunter_v2.upgradedVersion = Hunter_v3`, all others `null`. `displayPrefab` is `null` for every crest.
 
 Derived properties:
 
@@ -37,7 +37,7 @@ Derived properties:
 
 ### 1.2 Crest list and lookup
 
-- `ToolItemManager.crestList` is a `ToolCrestList` (`NamedScriptableObjectList<ToolCrest>`).
+- `ToolItemManager.crestList` is a `ToolCrestList` (`NamedScriptableObjectList<ToolCrest>`); the asset is named `Master Crest List` and holds 11 entries in the order of 1.3.
 - `ToolItemManager.GetAllCrests()` returns all non-null entries of `crestList` in list order.
 - `ToolItemManager.GetCrestByName(name)` returns `crestList.GetByName(name)` (asset name).
 - `GlobalSettings.Gameplay` holds direct references to individual crests (`hunterCrest`, `hunterCrest2`, `hunterCrest3`, `warriorCrest`, `reaperCrest`, `wandererCrest`, `cursedCrest`, `witchCrest`, `toolmasterCrest`, `spellCrest`, `cloaklessCrest`).
@@ -49,32 +49,59 @@ Derived properties:
 | 1 | `Hunter` | False | null | null | `hunterCrest` |
 | 2 | `Hunter_v2` | False | `Hunter` | null | `hunterCrest2` |
 | 3 | `Hunter_v3` | False | `Hunter_v2` | null | `hunterCrest3` |
-| 4 | `Reaper` | False | null | `Reaper` (HeroControllerConfig, 65784) | `reaperCrest` |
-| 5 | `Wanderer` | False | null | `Wanderer` (HeroControllerConfig, 65766) | `wandererCrest` |
-| 6 | `Warrior` | False | null | `Warrior` (HeroControllerConfigWarrior, 65804) | `warriorCrest` |
-| 7 | `Witch` | False | null | `Whip` (HeroControllerConfig, 65800) | `witchCrest` |
-| 8 | `Toolmaster` | False | null | `Toolmaster` (HeroControllerConfig, 65792) | `toolmasterCrest` |
-| 9 | `Spell` | False | null | `Shaman` (HeroControllerConfig, 65818) | `spellCrest` |
-| 10 | `Cursed` | True | null | `Whip` (HeroControllerConfig, 65800) | `cursedCrest` |
-| 11 | `Cloakless` | True | null | `Cloakless` (HeroControllerConfig, 50250) | `cloaklessCrest` |
+| 4 | `Reaper` | False | null | `Reaper` (HeroControllerConfig, 65000) | `reaperCrest` |
+| 5 | `Wanderer` | False | null | `Wanderer` (HeroControllerConfig, 64982) | `wandererCrest` |
+| 6 | `Warrior` | False | null | `Warrior` (HeroControllerConfigWarrior, 65020) | `warriorCrest` |
+| 7 | `Witch` | False | null | `Whip` (HeroControllerConfig, 65016) | `witchCrest` |
+| 8 | `Toolmaster` | False | null | `Toolmaster` (HeroControllerConfig, 65008) | `toolmasterCrest` |
+| 9 | `Spell` | False | null | `Shaman` (HeroControllerConfig, 65034) | `spellCrest` |
+| 10 | `Cursed` | True | null | `Whip` (HeroControllerConfig, 65016) | `cursedCrest` |
+| 11 | `Cloakless` | True | null | `Cloakless` (HeroControllerConfig, 42672) | `cloaklessCrest` |
+
+The `Default` config used by the Hunter crests is `HeroControllerConfig Default` (instanceId 76908 in the dump).
 
 ### 1.4 Internal ID / config / in-game name mapping
 
-The localised display strings are not part of the dump, so the in-game names below come from code hints (method names, config names, scene logic) plus the crest's known in-game identity. Entries marked "not verified" have no direct confirmation in the dumped data or code.
+In-game names are the resolved `displayName` strings (English) from `crests.txt`, with their localisation sheet/key.
 
-| Crest ID | Config asset | Attack root object | Anim override library | In-game name | Evidence |
+| Crest ID | `displayName` (sheet/key → EN string) | `description` key → EN string | Config asset | Attack root object | Anim override library |
 |---|---|---|---|---|---|
-| `Hunter`, `Hunter_v2`, `Hunter_v3` | none → `Default` | `Default` | none (base `Knight` library) | Hunter (base and two upgrades) | `HeroController.IsHunterCrestEquipped()` checks these three IDs |
-| `Reaper` | `Reaper` | `Scythe` | Hornet CrestWeapon Scythe Anim | Reaper | ID/config name |
-| `Wanderer` | `Wanderer` | `Wanderer` | Hornet CrestWeapon Dagger Anim | Wanderer | ID/config name |
-| `Warrior` | `Warrior` | `Warrior` (+ special rage group) | Hornet CrestWeapon Warrior Anim | Beast (not verified from dump) | ID is "Warrior"; rage mode logic is `WarriorState` |
-| `Witch` | `Whip` | `Witch` | Hornet CrestWeapon Whip Anim | Witch | ID; config named after the whip weapon |
-| `Cursed` | `Whip` (same asset as `Witch`) | `Witch` | Hornet CrestWeapon Whip Anim | Cursed crest (the pre-Witch cursed state; not verified from dump) | `PlayerData.IsAnyCursed => CurrentCrestID == Gameplay.CursedCrest.name`; `ToolItemManager.IsCursed` set from it |
-| `Toolmaster` | `Toolmaster` | `Toolmaster` | Hornet CrestWeapon Drill Lance Anim | Architect | `HeroController.IsArchitectCrestEquipped()` returns `CurrentCrestID == "Toolmaster"` |
-| `Spell` | `Shaman` | `Shaman` | Hornet CrestWeapon Shaman Anim | Shaman | config/root named `Shaman`; `Gameplay.spellCrestRuneDamageMult` |
-| `Cloakless` | `Cloakless` | `Cloakless` | Hornet Cloakless Anim | No crest name; Hornet's cloakless state in The Slab | `HeroSlabCapture.ApplyCaptured()` auto-equips `Gameplay.CloaklessCrest`; `GameManager.FixUpSaveState()` / `PlayerData.OnBeforeSave()` restore the previous crest around `slab_cloak_battle_completed` / scene `Slab_16` |
+| `Hunter` | `Tools/CREST_HUNTER_NAME` → "Hunter" | `CREST_HUNTER_DESC` → "Stalk prey and attack with lethal strikes." | none → `Default` | `Default` | none (base `Knight` library) |
+| `Hunter_v2`, `Hunter_v3` | `Tools/CREST_HUNTER_NAME` → "Hunter" | `CREST_HUNTER_UPGRADED_DESC` → "Stalk prey and attack with lethal strikes. Build focus with successive strikes." | none → `Default` | `Default` | none |
+| `Reaper` | `Tools/CREST_REAPER_NAME` → "Reaper" | `CREST_REAPER_DESC` → "Attack with heavy, arcing slashes and reap additional Silk from enemies." | `Reaper` | `Scythe` | Hornet CrestWeapon Scythe Anim |
+| `Wanderer` | `Tools/CREST_PILGRIM_NAME` → "Wanderer" | `CREST_PILGRIM_DESC` → "Cut swiftly and nimbly with short, precise strikes." | `Wanderer` | `Wanderer` | Hornet CrestWeapon Dagger Anim |
+| `Warrior` | `Tools/CREST_WARRIOR_NAME` → "Beast" | `CREST_WARRIOR_DESC` → "Tear foes with savage slashes. Bind to enter a wild fury and steal life from prey." | `Warrior` | `Warrior` (+ `specialConfigs[0]` rage objects) | Hornet CrestWeapon Warrior Anim |
+| `Witch` | `Tools/CREST_WITCH_NAME` → "Witch" | `CREST_WITCH_DESC` → "Whip the needle in sweeping swings. Leech the life of foes through twisted roots." | `Whip` | `Witch` | Hornet CrestWeapon Whip Anim |
+| `Toolmaster` | `Tools/CREST_TOOLMASTER_NAME` → "Architect" | `CREST_TOOLMASTER_DESC` → "Spin the needle as a screw, shredding foes. Spend Silk to rapidly craft new tools." | `Toolmaster` | `Toolmaster` | Hornet CrestWeapon Drill Lance Anim |
+| `Spell` | `Tools/CREST_SPELL_NAME` → "Shaman" | `CREST_SPELL_DESC` → "Cast the blade forward and strengthen Silk Skills with powerful runes." | `Shaman` | `Shaman` | Hornet CrestWeapon Shaman Anim |
+| `Cursed` | `Tools/CREST_CURSE_NAME` → no string (the dump shows the missing-key placeholder `!!Tools/CREST_CURSE_NAME!!`) | `CREST_CURSE_DESC` → no string (placeholder) | `Whip` (same asset as `Witch`) | `Witch` | Hornet CrestWeapon Whip Anim |
+| `Cloakless` | empty sheet/key (no name) | empty | `Cloakless` | `Cloakless` | Hornet Cloakless Anim |
 
-Override library clip counts (from `crests.txt`): Scythe 29, Dagger 20, Warrior 48, Whip 22, Drill Lance 26, Shaman 14, Cloakless 174. The base hero library (`Knight`) has 501 clips (`hero-animations.txt`). `HeroAnimationController.GetClip(name)` returns the config's override clip if the override library has a clip of that name, otherwise it falls back to the windy library (in wind/updraft) and then the base library.
+Further facts per crest:
+
+- `Hunter`, `Hunter_v2`, `Hunter_v3` share the display name "Hunter". `HeroController.IsHunterCrestEquipped()` checks these three IDs.
+- `Toolmaster`: `HeroController.IsArchitectCrestEquipped()` returns `CurrentCrestID == "Toolmaster"`.
+- `Spell`: `Gameplay.spellCrestRuneDamageMult` = 1.4.
+- `Cursed`: its other localised fields use Witch-specific keys that also have no string in the loaded table: `itemNamePrefix = Tools/UI_MSG_TITLE_CREST_WITCH`, `getPromptDesc = Tools/UI_MSG_GETCREST_CURSED`, `equipText = Tools/UI_MSG_EQUIP_CREST_WITCH`. `crestSprite = cursed_crest_animated0001`, no silhouette/glow. `PlayerData.IsAnyCursed => CurrentCrestID == Gameplay.CursedCrest.name`; `ToolItemManager.IsCursed` is set from `cursedCrest.IsEquipped`.
+- `Cloakless`: no sprites. `HeroSlabCapture.ApplyCaptured()` auto-equips `Gameplay.CloaklessCrest`; `GameManager.FixUpSaveState()` / `PlayerData.OnBeforeSave()` restore the previous crest around `slab_cloak_battle_completed` / scene `Slab_16`.
+
+Crest sprites (`crestSprite` / `crestSilhouette` / `crestGlow`):
+
+| Crest | crestSprite | crestSilhouette | crestGlow |
+|---|---|---|---|
+| Hunter | Crest__0014_hunter_lvl2 | Crest__0013_hunter_lvl2_full | Crest__0006_hunter_lvl2_equip_glow |
+| Hunter_v2 | Crest__0014_hunter_lvl3 | Crest__0014_hunter_lvl3_silhouette | Crest__0014_hunter_lvl3_equip_glow |
+| Hunter_v3 | Crest__0014_hunter_lvl4 | Crest__0014_hunter_lvl4_silhouette | Crest__0014_hunter_lvl4_equip_glow |
+| Reaper | Crest__0004_reaper | Crest__0000_reaper_sil | Crest__0001_reaper_equip_glow |
+| Wanderer | Crest__0006_wanderer | Crest__0001_wanderer_sil | Crest__0002_wanderer_equip_glow |
+| Warrior | Crest__0007_warrior | Crest__0002_warrior_sil | Crest__0000_warrior_equip_glow |
+| Witch | Crest__0006_witch | Crest__0006_witch_sil | Crest__0003_witch_equip_glow |
+| Spell | Crest__0010_spell | Crest__0009_spell_full | Crest__0004_spell_equip_glow |
+| Toolmaster | Crest__0017_toolmaster | Crest__0016_toolmaster_full | Crest__0015_toolmaster_equip_glow |
+| Cursed | cursed_crest_animated0001 | null | null |
+| Cloakless | null | null | null |
+
+Override library clip counts (`animations-tk2d.txt`): Scythe 29, Dagger 20, Warrior 48, Whip 22, Drill Lance 26, Shaman 14, Cloakless 174. The base hero library (`Knight`) has 501 clips; the windy library `Hornet NeedolinWindy` has 7. `HeroAnimationController.GetClip(name)` returns the config's override clip if the override library has a clip of that name, otherwise it falls back to the windy library (in wind/updraft) and then the base library.
 
 ---
 
@@ -142,6 +169,8 @@ Per-slot listing (`type / locked / binding`):
 | Spell | Skill / – / Neutral | Skill / – / Up | Skill / – / Down | Blue / locked / Down | Blue / locked / Down | | |
 | Cursed | (no slots) | | | | | | |
 | Cloakless | (no slots) | | | | | | |
+
+The three Hunter versions have identical slot types, lock flags, bindings and navigation indices. Their `Position` values differ slightly (e.g. slot[4]: Hunter (0.00, -2.52), Hunter_v2 (-0.01, -2.52), Hunter_v3 (-0.01, -2.32); slot[5]/[6] x = ±2.53 on Hunter, ±2.62 on v2/v3).
 
 Counts (total / of which locked):
 
@@ -220,7 +249,7 @@ Counts (total / of which locked):
 | configs[7] | Shaman | Shaman | AltSlash | Slash | UpSlash | null | DownSlash | null | WallSlash | null | null | Charge Slash Shaman | Taunt Slash |
 | specialConfigs[0] | Warrior | null | Slash Rage | AltSlash Rage | UpSlash Rage | null | null | null | WallSlash Rage | null | null | null | null |
 
-(Object names are the GameObject names under each ActiveRoot; Toolmaster/Whip/Shaman assign the object named `AltSlash` as NormalSlash and `Slash` as AlternateSlash.)
+(Object names are GameObject names. Slash/DashStab objects are children of the group's ActiveRoot `Hero_Hornet(Clone)/Attacks/<root>`. All `ChargeSlash` objects are direct children of `Hero_Hornet(Clone)/Attacks/` (e.g. `Attacks/Charge Slash Basic`), not of the ActiveRoot. `TauntSlash` is the shared object `Hero_Hornet(Clone)/Taunt Slash` for every group except Warrior, whose `TauntSlash` is `Hero_Hornet(Clone)/Attacks/Warrior/Taunt Slash`. Toolmaster/Whip/Shaman assign the object named `AltSlash` as NormalSlash and `Slash` as AlternateSlash. `specialConfigs[0]` has `ActiveRoot = null`; its rage objects are under `Attacks/Warrior`.)
 
 Selection logic:
 
@@ -236,7 +265,7 @@ Selection logic:
 
 ### 3.3 Config values (all configs)
 
-`Default` from `hero-configs.txt` (configs[0]); the others from `crests.txt` (same asset instances as in `hero-configs.txt`).
+`Default` from `hero-configs.txt` (configs[0]) and `referenced-objects.txt` (`HeroControllerConfig Default`); the others from `crests.txt` (same asset instances as in `hero-configs.txt` and `referenced-objects.txt`).
 
 | Field | Default (Hunter ×3) | Cloakless | Reaper | Warrior | Wanderer | Toolmaster | Whip (Witch, Cursed) | Shaman (Spell) |
 |---|---|---|---|---|---|---|---|---|
@@ -346,10 +375,11 @@ Decompiled (`scratchpad/decomp/`):
 - `GlobalSettings/Gameplay.cs` – crest references.
 
 Dumps (`raw-dump/`):
-- `crests.txt` – crest list order, slots, heroConfig values, override animation clips.
-- `hero-configs.txt` – `configs[0..7]`, `specialConfigs[0]`, Default config values, attack object names.
-- `hero-controller.txt` – `configs` (8), `specialConfigs` (1), `crestConfig = null` with `CurrentCrestID = "Hunter_v3"`, `ALT_ATTACK_RESET = 0.5`.
-- `gameplay-settings.txt` – crest references in `Gameplay`.
-- `tools.txt` – tool type counts.
-- `hero-animations.txt` – base `Knight` library.
-- `fsm_Hero_Hornet(Clone)_Sprint.txt`, `_Nail Arts.txt`, `_Bind.txt` – `GetHeroConfigVariable` / `CanBind` usage.
+- `crests.txt` – crest list order, all `ToolCrest` fields (localisation sheet/key and resolved EN strings, sprites, `customButtonCombo`, `upgradedVersion`), slots (type/lock/binding/position/navigation), heroConfig values, override animation clips.
+- `hero-configs.txt` – `configs[0..7]`, `specialConfigs[0]` (config instanceIds, ActiveRoot paths, attack object paths, tags, components), Default config values.
+- `hero-controller.txt` – `crestConfig = null` with `PlayerData.CurrentCrestID = "Hunter_v3"`, `PreviousCrestID = "Reaper"`, `ALT_ATTACK_RESET = 0.5`.
+- `global-settings.txt` – `GlobalSettings.Gameplay` crest references, `defaultSkillTool`, `spellCrestRuneDamageMult`.
+- `referenced-objects.txt` – `ToolCrestList Master Crest List`, all `HeroControllerConfig` assets including `Default`.
+- `tools.txt` – tool type and class counts.
+- `animations-tk2d.txt` – clip counts of the `Knight`, `Hornet NeedolinWindy` and crest override libraries.
+- `fsm_Hero_Hornet(Clone)_Sprint.txt`, `fsm_Hero_Hornet(Clone)_Nail Arts.txt`, `fsm_Hero_Hornet(Clone)_Bind.txt` – `GetHeroConfigVariable` / `CanBind` usage.
