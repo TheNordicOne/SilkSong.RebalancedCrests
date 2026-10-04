@@ -15,6 +15,9 @@ namespace RebalancedCrests
         private void Awake()
         {
             _tweaks.Add(new PogoWindupTweak(Config));
+            _tweaks.Add(new SprintSlashWindupTweak(Config));
+            _tweaks.Add(new NeedleStrikePushbackTweak(Config));
+            _tweaks.Add(new FocusLossTweak(Config));
 
             CrestDump.Init(Config, Logger);
             HeroEvents.HeroStarted += ApplyTweaks;

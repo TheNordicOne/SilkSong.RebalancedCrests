@@ -27,6 +27,9 @@ Every change can be toggled and tuned individually in the config file
 | Change | Config | Vanilla |
 |---|---|---|
 | Down attack (pogo) has no windup: the hitbox is active in the frame the attack is pressed | `PogoWindupEnabled`, `PogoWindupSeconds` (default 0) | 0.1 s windup |
+| Sprint slash has no windup | `SprintSlashWindupEnabled`, `SprintSlashWindupSeconds` (default 0) | 0.1667 s windup |
+| Needle strike no longer pushes Hornet backwards | `NeedleStrikeNoPushbackEnabled` | pushed back |
+| Upgraded Hunter crest loses only some focus per hit taken | `FocusLossOnHitEnabled`, `FocusLossOnHitAmount` (default 6) | all focus lost |
 
 ## Requirements
 

@@ -13,11 +13,14 @@ namespace RebalancedCrests.Core
             Enabled = config.Bind(section, $"{name}Enabled", true, description);
         }
 
-        protected ConfigEntry<bool> Enabled { get; }
+        internal ConfigEntry<bool> Enabled { get; }
 
         /// <summary>
         /// Applies the tweak to the current hero, or restores vanilla behaviour when disabled.
+        /// Tweaks that read their config live (e.g. from Harmony patches) have nothing to do here.
         /// </summary>
-        internal abstract void Apply(HeroController hero);
+        internal virtual void Apply(HeroController hero)
+        {
+        }
     }
 }
