@@ -4,3 +4,9 @@ obj/
 riderModule.iml
 /_ReSharper.Caches/
 *.DotSettings.user
+
+# IDE
+.idea/
+
+# raw game data dumps (local research only)
+docs/knowledge-base/raw-dump/

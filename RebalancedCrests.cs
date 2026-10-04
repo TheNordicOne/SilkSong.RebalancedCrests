@@ -1,4 +1,6 @@
 using BepInEx;
+using HarmonyLib;
+using RebalancedCrests.Diagnostics;
 
 namespace RebalancedCrests
 {
@@ -7,6 +9,8 @@ namespace RebalancedCrests
     {
         private void Awake()
         {
+            CrestDump.Init(Config, Logger);
+            new Harmony(Info.Metadata.GUID).PatchAll(typeof(RebalancedCrests).Assembly);
             Logger.LogInfo("loaded");
         }
     }
