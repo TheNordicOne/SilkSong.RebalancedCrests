@@ -32,28 +32,28 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Down attack (pogo) has no windup | `Pogo - Shorter windup`, `Pogo - Windup seconds` (default 0) | 0.1 s windup |
-| Sprint slash has no windup | `Sprint slash - Shorter windup`, `Sprint slash - Windup seconds` (default 0) | 0.1667 s windup |
-| Needle strike no longer pushes Hornet backwards | `Needle strike - No pushback` | pushed back |
+| Pogo has no windup | `Pogo - Shorter windup`, `Pogo - Windup seconds` (default 0) | 0.1 s windup |
+| Sprint attack has no windup | `Sprint attack - Shorter windup`, `Sprint attack - Windup seconds` (default 0) | 0.1667 s windup |
+| Needle Strike no longer pushes Hornet backwards | `Needle Strike - No pushback` | pushed back |
 | Upgraded Hunter crest loses only some focus per hit taken | `Focus - Keep some on hit`, `Focus - Lost per hit` (default 6) | all focus lost |
 
 ### Reaper
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Up slash in front of Hornet | `Up slash - In front` | mostly behind her |
-| Sprint slash has no windup | `Sprint slash - Shorter windup`, `Sprint slash - Windup seconds` (default 0) | 0.125 s windup |
-| Bigger needle strike | `Needle strike - Bigger`, `Needle strike - Size multiplier` (default 1.25) | 1 |
-| Down slash without windup, control lock and forced diagonal movement; keeps its attack speed | `Pogo - Responsive` | 0.1667 s windup, ~0.5 s without control |
-| Silk Steel: fixed silk bundles per hit | `Silk Steel - Fixed bundles per hit`, `Silk Steel - Bundles per hit` (default 2) | random 1-3 |
-| Silk Steel: needle strike drops more bundles | `Silk Steel - More needle strike bundles`, `Silk Steel - Needle strike bundles per hit` (default 6) | same as other hits |
+| Up attack hits in front of Hornet | `Up attack - In front of Hornet` | mostly behind her |
+| Sprint attack has no windup | `Sprint attack - Shorter windup`, `Sprint attack - Windup seconds` (default 0) | 0.125 s windup |
+| Bigger Needle Strike | `Needle Strike - Bigger`, `Needle Strike - Size multiplier` (default 1.25) | 1 |
+| Pogo hits instantly, keeps control of Hornet and no longer pulls her diagonally; keeps its slow attack speed | `Pogo - Instant, keeps control` | 0.1667 s windup, ~0.5 s without control |
+| Silk Steel: fixed silk fragments per hit | `Silk Steel - Fixed fragments per hit`, `Silk Steel - Fragments per hit` (default 2) | random 1-3 |
+| Silk Steel: Needle Strike drops more fragments | `Silk Steel - More Needle Strike fragments`, `Silk Steel - Needle Strike fragments per hit` (default 6) | same as other hits |
 | Silk Steel is kept when taking damage; each hit shortens it instead | `Silk Steel - Kept on damage`, `Silk Steel - Seconds lost per hit` (default 1) | ends on damage |
 
 ### Wanderer
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Sprint slash has no windup | `Sprint slash - Shorter windup`, `Sprint slash - Windup seconds` (default 0) | 0.1111 s windup |
+| Sprint attack has no windup | `Sprint attack - Shorter windup`, `Sprint attack - Windup seconds` (default 0) | 0.1111 s windup |
 
 ## Requirements
 

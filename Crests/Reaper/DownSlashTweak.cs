@@ -25,9 +25,9 @@ namespace RebalancedCrests.Crests.Reaper
         private static DownSlashTweak _instance;
 
         internal DownSlashTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "Pogo - Responsive",
-                "Down slash (pogo) without windup, without locking Hornet's controls and without the forced diagonal "
-                + "movement. It keeps its slow attack speed. Vanilla: 0.1667 s windup, ~0.5 s without control.")
+            : base(config, Crest.Reaper, "Pogo - Instant, keeps control",
+                "The pogo hits the moment you press attack, you keep control of Hornet and she is no longer pulled "
+                + "diagonally down. It keeps its slow attack speed. Vanilla: 0.1667 s windup, ~0.5 s without control.")
         {
             _instance = this;
         }

@@ -11,8 +11,8 @@ namespace RebalancedCrests.Crests.Hunter
     internal sealed class NeedleStrikePushbackTweak : Tweak
     {
         internal NeedleStrikePushbackTweak(ConfigFile config)
-            : base(config, Crest.Hunter, "Needle strike - No pushback",
-                "Remove the backwards push during the needle strike, so Hornet stays in place. Vanilla: pushed back.")
+            : base(config, Crest.Hunter, "Needle Strike - No pushback",
+                "Hornet is no longer pushed backwards during the Needle Strike. Vanilla: pushed back.")
         {
         }
 

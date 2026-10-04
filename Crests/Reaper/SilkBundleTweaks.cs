@@ -10,11 +10,11 @@ namespace RebalancedCrests.Crests.Reaper
     internal sealed class FixedSilkBundlesTweak : Tweak
     {
         internal FixedSilkBundlesTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "Silk Steel - Fixed bundles per hit",
-                "Drop a fixed number of silk bundles per hit during Silk Steel. Vanilla: random 1-3 (average 1.8).")
+            : base(config, Crest.Reaper, "Silk Steel - Fixed fragments per hit",
+                "During Silk Steel, every hit drops the same number of silk fragments. Vanilla: random 1-3 (average 1.8).")
         {
-            Count = config.Bind(Crest.Name, "Silk Steel - Bundles per hit", 2,
-                new ConfigDescription("Silk bundles per hit. 3 bundles = 1 silk.", new AcceptableValueRange<int>(0, 9)));
+            Count = config.Bind(Crest.Name, "Silk Steel - Fragments per hit", 2,
+                new ConfigDescription("Silk fragments per hit. 3 fragments = 1 silk.", new AcceptableValueRange<int>(0, 9)));
             ReaperPayoutPatch.Fixed = this;
         }
 
@@ -27,11 +27,11 @@ namespace RebalancedCrests.Crests.Reaper
     internal sealed class NeedleStrikeSilkBundlesTweak : Tweak
     {
         internal NeedleStrikeSilkBundlesTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "Silk Steel - More needle strike bundles",
-                "Needle strike hits drop more silk bundles during Silk Steel. Vanilla: same as any other hit.")
+            : base(config, Crest.Reaper, "Silk Steel - More Needle Strike fragments",
+                "During Silk Steel, Needle Strike hits drop more silk fragments. Vanilla: same as any other hit.")
         {
-            Count = config.Bind(Crest.Name, "Silk Steel - Needle strike bundles per hit", 6,
-                new ConfigDescription("Silk bundles per needle strike hit. 3 bundles = 1 silk.",
+            Count = config.Bind(Crest.Name, "Silk Steel - Needle Strike fragments per hit", 6,
+                new ConfigDescription("Silk fragments per Needle Strike hit. 3 fragments = 1 silk.",
                     new AcceptableValueRange<int>(0, 18)));
             ReaperPayoutPatch.NeedleStrike = this;
         }
