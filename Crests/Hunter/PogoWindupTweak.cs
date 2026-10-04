@@ -11,7 +11,6 @@ namespace RebalancedCrests.Crests.Hunter
     internal sealed class PogoWindupTweak : Tweak
     {
         private readonly ConfigEntry<float> _windupSeconds;
-        private ValueOverride<float> _anticTime;
 
         internal PogoWindupTweak(ConfigFile config)
             : base(config, Crest.Hunter, "PogoWindup",
@@ -26,8 +25,8 @@ namespace RebalancedCrests.Crests.Hunter
         internal override void Apply(HeroController hero)
         {
             var config = HunterCrest.GetConfig(hero);
-            _anticTime ??= new ValueOverride<float>(() => config.downspikeAnticTime, value => config.downspikeAnticTime = value);
-            _anticTime.Apply(Enabled.Value, _windupSeconds.Value);
+            Override(config, nameof(config.downspikeAnticTime), () => config.downspikeAnticTime, value => config.downspikeAnticTime = value)
+                .Apply(Enabled.Value, _windupSeconds.Value);
         }
     }
 }

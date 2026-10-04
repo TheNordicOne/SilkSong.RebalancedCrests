@@ -10,8 +10,6 @@ namespace RebalancedCrests.Crests.Hunter
     /// </summary>
     internal sealed class NeedleStrikePushbackTweak : Tweak
     {
-        private ValueOverride<bool> _recoils;
-
         internal NeedleStrikePushbackTweak(ConfigFile config)
             : base(config, Crest.Hunter, "NeedleStrikeNoPushback",
                 "Remove the backwards push during the needle strike, so Hornet stays in place. Vanilla: pushed back.")
@@ -21,8 +19,8 @@ namespace RebalancedCrests.Crests.Hunter
         internal override void Apply(HeroController hero)
         {
             var config = HunterCrest.GetConfig(hero);
-            _recoils ??= new ValueOverride<bool>(() => config.chargeSlashRecoils, value => config.chargeSlashRecoils = value);
-            _recoils.Apply(Enabled.Value, false);
+            Override(config, nameof(config.chargeSlashRecoils), () => config.chargeSlashRecoils, value => config.chargeSlashRecoils = value)
+                .Apply(Enabled.Value, false);
         }
     }
 }

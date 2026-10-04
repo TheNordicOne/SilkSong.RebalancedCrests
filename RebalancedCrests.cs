@@ -4,6 +4,7 @@ using HarmonyLib;
 using RebalancedCrests.Core;
 using RebalancedCrests.Crests;
 using RebalancedCrests.Crests.Hunter;
+using RebalancedCrests.Crests.Reaper;
 using RebalancedCrests.Crests.Shared;
 using RebalancedCrests.Diagnostics;
 
@@ -26,7 +27,13 @@ namespace RebalancedCrests
             _tweaks.Add(new NeedleStrikePushbackTweak(Config));
             _tweaks.Add(new FocusLossTweak(Config));
 
+            _tweaks.Add(new UpSlashInFrontTweak(Config));
             _tweaks.Add(new SprintSlashWindupTweak(Config, Crest.Reaper, 0.125f, "Reaper Antic"));
+            _tweaks.Add(new NeedleStrikeRangeTweak(Config));
+            _tweaks.Add(new DownSlashTweak(Config));
+            _tweaks.Add(new FixedSilkBundlesTweak(Config));
+            _tweaks.Add(new NeedleStrikeSilkBundlesTweak(Config));
+            _tweaks.Add(new SilkSteelDurationTweak(Config));
 
             _tweaks.Add(new SprintSlashWindupTweak(Config, Crest.Wanderer, 0.1111f, "Wanderer Nml", "Wanderer Alt"));
 
