@@ -28,10 +28,18 @@ namespace RebalancedCrests.Diagnostics
 
         private const BindingFlags StaticFields = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 
-        private const int MaxReferencedObjects = 600;
+        private const int MaxReferencedObjects = 2000;
         private const int MaxReferencedTransforms = 200;
         private const int MaxFormatDepth = 4;
         private const float SampleStep = 1f / 60f;
+
+        // irrelevant to gameplay mechanics; they used up the reference cap
+        private static readonly HashSet<string> IgnoredAssetTypes = new HashSet<string>
+        {
+            "VibrationDataAsset", "PS5VibrationData", "GamepadVibration", "RandomAudioClipTable", "MusicCue",
+            "AchievementsList", "Quest", "QuestBoardList", "QuestTargetPlayerDataBools", "ShopItemList",
+            "CollectableItemBasic", "CollectableItemMementoList",
+        };
 
         private static ManualLogSource _log;
         private static ConfigEntry<bool> _enabled;
@@ -416,6 +424,8 @@ namespace RebalancedCrests.Diagnostics
                     return;
                 case tk2dSpriteCollectionData _:
                 case ToolBase _:
+                    return;
+                case ScriptableObject so when IgnoredAssetTypes.Contains(so.GetType().Name):
                     return;
                 case GameObject _:
                 case Component _:
