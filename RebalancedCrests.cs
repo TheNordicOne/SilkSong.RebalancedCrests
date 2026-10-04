@@ -2,7 +2,9 @@ using System.Collections.Generic;
 using BepInEx;
 using HarmonyLib;
 using RebalancedCrests.Core;
+using RebalancedCrests.Crests;
 using RebalancedCrests.Crests.Hunter;
+using RebalancedCrests.Crests.Shared;
 using RebalancedCrests.Diagnostics;
 
 namespace RebalancedCrests
@@ -14,10 +16,19 @@ namespace RebalancedCrests
 
         private void Awake()
         {
+            foreach (var crest in Crest.All)
+            {
+                _tweaks.Add(new MovementAfterAttackTweak(Config, crest));
+            }
+
             _tweaks.Add(new PogoWindupTweak(Config));
-            _tweaks.Add(new SprintSlashWindupTweak(Config));
+            _tweaks.Add(new SprintSlashWindupTweak(Config, Crest.Hunter, 0.1667f, "Attack Antic"));
             _tweaks.Add(new NeedleStrikePushbackTweak(Config));
             _tweaks.Add(new FocusLossTweak(Config));
+
+            _tweaks.Add(new SprintSlashWindupTweak(Config, Crest.Reaper, 0.125f, "Reaper Antic"));
+
+            _tweaks.Add(new SprintSlashWindupTweak(Config, Crest.Wanderer, 0.1111f, "Wanderer Nml", "Wanderer Alt"));
 
             CrestDump.Init(Config, Logger);
             HeroEvents.HeroStarted += ApplyTweaks;

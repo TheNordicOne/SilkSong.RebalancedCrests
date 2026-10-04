@@ -19,10 +19,10 @@ namespace RebalancedCrests.Crests.Hunter
         private static FocusLossTweak _instance;
 
         internal FocusLossTweak(ConfigFile config)
-            : base(config, HunterCrest.Section, "FocusLossOnHit",
+            : base(config, Crest.Hunter, "FocusLossOnHit",
                 "Lose only some focus when taking damage with the upgraded Hunter crest. Vanilla: all focus is lost.")
         {
-            Amount = config.Bind(HunterCrest.Section, "FocusLossOnHitAmount", 6,
+            Amount = config.Bind(Crest.Name, "FocusLossOnHitAmount", 6,
                 new ConfigDescription(
                     "Focus lost per hit taken, regardless of masks lost or double damage.",
                     new AcceptableValueRange<int>(0, 18)));

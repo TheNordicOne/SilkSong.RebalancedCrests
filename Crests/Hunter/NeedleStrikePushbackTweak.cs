@@ -13,7 +13,7 @@ namespace RebalancedCrests.Crests.Hunter
         private ValueOverride<bool> _recoils;
 
         internal NeedleStrikePushbackTweak(ConfigFile config)
-            : base(config, HunterCrest.Section, "NeedleStrikeNoPushback",
+            : base(config, Crest.Hunter, "NeedleStrikeNoPushback",
                 "Remove the backwards push during the needle strike, so Hornet stays in place. Vanilla: pushed back.")
         {
         }

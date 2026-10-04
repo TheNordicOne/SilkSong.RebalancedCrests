@@ -1,4 +1,5 @@
 using BepInEx.Configuration;
+using RebalancedCrests.Crests;
 
 namespace RebalancedCrests.Core
 {
@@ -8,10 +9,18 @@ namespace RebalancedCrests.Core
     /// </summary>
     internal abstract class Tweak
     {
-        protected Tweak(ConfigFile config, string section, string name, string description)
+        protected Tweak(ConfigFile config, Crest crest, string name, string description)
         {
-            Enabled = config.Bind(section, $"{name}Enabled", true, description);
+            Crest = crest;
+            Enabled = config.Bind(crest.Name, $"{name}Enabled", true, description);
         }
+
+        internal Crest Crest { get; }
+
+        /// <summary>
+        /// True while the tweak is enabled and its crest is equipped.
+        /// </summary>
+        internal bool IsActive => Enabled.Value && Crest.IsEquipped;
 
         internal ConfigEntry<bool> Enabled { get; }
 

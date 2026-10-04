@@ -12,9 +12,9 @@ namespace RebalancedCrests.Core
                    ?? throw new InvalidOperationException($"FSM '{fsm.FsmName}' has no state '{stateName}'");
         }
 
-        internal static bool HasAction<T>(this FsmState state) where T : FsmStateAction
+        internal static bool HasAction<T>(this FsmState state, Func<T, bool> predicate) where T : FsmStateAction
         {
-            return state.Actions.OfType<T>().Any();
+            return state.Actions.OfType<T>().Any(predicate);
         }
 
         /// <summary>
