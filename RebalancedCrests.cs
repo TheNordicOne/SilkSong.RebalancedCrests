@@ -39,6 +39,8 @@ namespace RebalancedCrests
 
             _tweaks.Add(new SprintSlashWindupTweak(Config, Crest.Wanderer, 0.1111f, 2, "Wanderer Nml", "Wanderer Alt"));
             _tweaks.Add(new CriticalStrikeTweak(Config));
+            _tweaks.Add(new SingleSwipeNeedleStrikeTweak(Config));
+            _tweaks.Add(new NeedleStrikeSilkTweak(Config));
 
             DebugLog.Init(Config, Logger);
             CrestDump.Init(Config, Logger);

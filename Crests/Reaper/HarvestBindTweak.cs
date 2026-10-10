@@ -38,7 +38,7 @@ namespace RebalancedCrests.Crests.Reaper
         {
             var fsm = hero.GetFsm("Bind");
             var canBind = fsm.GetState("Can Bind?");
-            if (canBind.HasAction<HarvestAction>(action => action.Tweak == this))
+            if (canBind.HasAction<CallbackAction>(action => action.Tweak == this))
             {
                 return;
             }
@@ -49,7 +49,7 @@ namespace RebalancedCrests.Crests.Reaper
             var quickBindCheck = quickBind.GetAction<CheckIfToolEquipped>();
             var quickBindFactor = quickBind.GetAction<FloatMultiply>().multiplyBy.Value;
 
-            canBind.InsertActionBefore(canBind.GetAction<PlayerdataIntCompare>(), new HarvestAction(this, _ =>
+            canBind.InsertActionBefore(canBind.GetAction<PlayerdataIntCompare>(), new CallbackAction(this, _ =>
             {
                 if (IsActive && hero.inputHandler.inputActions.Up.IsPressed && !ToolItemManager.IsInCutscene)
                 {
@@ -58,7 +58,7 @@ namespace RebalancedCrests.Crests.Reaper
             }));
 
             var quickCraft = fsm.GetState("Quick Craft?");
-            quickCraft.InsertActionBefore(quickCraft.GetAction<CheckIfCrestEquipped>(), new HarvestAction(this, action =>
+            quickCraft.InsertActionBefore(quickCraft.GetAction<CheckIfCrestEquipped>(), new CallbackAction(this, action =>
             {
                 _harvesting = IsActive && variables.GetFsmBool("Was Up Pressed").Value;
                 if (_harvesting)
@@ -69,7 +69,7 @@ namespace RebalancedCrests.Crests.Reaper
                 }
             }));
 
-            fsm.GetState("Quick Craft Start").AddAction(new HarvestAction(this, _ =>
+            fsm.GetState("Quick Craft Start").AddAction(new CallbackAction(this, _ =>
             {
                 if (_harvesting && bellCheck.IsTrue)
                 {
@@ -81,7 +81,7 @@ namespace RebalancedCrests.Crests.Reaper
 
             foreach (var stateName in new[] { "QC Start Ground", "QC Start Air" })
             {
-                fsm.GetState(stateName).AddAction(new HarvestAction(this, action =>
+                fsm.GetState(stateName).AddAction(new CallbackAction(this, action =>
                 {
                     if (_harvesting && quickBindCheck.IsTrue)
                     {
@@ -94,11 +94,11 @@ namespace RebalancedCrests.Crests.Reaper
             var craftingStarted = fsm.GetState("Crafting Started");
             var quickCraftingEvent = craftingStarted.GetAction<SendEventToRegister>();
             craftingStarted.InsertActionBefore(craftingStarted.Actions[0],
-                new HarvestAction(this, _ => quickCraftingEvent.Enabled = !_harvesting));
+                new CallbackAction(this, _ => quickCraftingEvent.Enabled = !_harvesting));
 
             var burst = fsm.GetState("Quick Craft Burst");
             var replenish = burst.GetAction<TryReplenishTools>();
-            burst.InsertActionBefore(replenish, new HarvestAction(this, _ =>
+            burst.InsertActionBefore(replenish, new CallbackAction(this, _ =>
             {
                 replenish.Enabled = !_harvesting;
                 if (_harvesting)
@@ -107,28 +107,6 @@ namespace RebalancedCrests.Crests.Reaper
                     Core.DebugLog.Tweak(this, "Harvest Bind completed, Silk Steal started");
                 }
             }));
-        }
-
-        /// <summary>
-        /// Runs a callback when its state is entered.
-        /// </summary>
-        private sealed class HarvestAction : FsmStateAction
-        {
-            private readonly System.Action<FsmStateAction> _onEnter;
-
-            internal HarvestAction(HarvestBindTweak tweak, System.Action<FsmStateAction> onEnter)
-            {
-                Tweak = tweak;
-                _onEnter = onEnter;
-            }
-
-            internal HarvestBindTweak Tweak { get; }
-
-            public override void OnEnter()
-            {
-                _onEnter(this);
-                Finish();
-            }
         }
     }
 }

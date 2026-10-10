@@ -56,6 +56,8 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 |---|---|---|
 | Run-slash has no windup | `Run-slash - Shorter windup`, `Run-slash - Windup seconds` (default 0) | 0.1111 s windup |
 | Critical Strike replaces random critical hits: once you have Needle Strike, nail hits fill the harp (HUD harp appears when full); a full harp makes the next Needle Strike critical (3× damage) | `Critical hits - Critical Strike`, `Critical Strike - Hits to fill harp` (default 7) | 2 % crit chance per nail hit at 9+ Silk |
+| Needle Strike is a single powerful swipe (Hunter's Needle Strike) instead of a flurry of weak hits | `Needle Strike - Single powerful swipe`, `Needle Strike - Swipe damage multiplier` (default 1) | multi-hit flurry |
+| Every hit of the multi-hit Needle Strike gives Silk (only matters with the single swipe off) | `Needle Strike - Silk on every hit` | only the first hit gives Silk |
 
 ## Requirements
 

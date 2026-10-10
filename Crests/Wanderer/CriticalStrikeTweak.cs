@@ -1,6 +1,5 @@
 using BepInEx.Configuration;
 using HarmonyLib;
-using HutongGames.PlayMaker;
 using RebalancedCrests.Core;
 
 namespace RebalancedCrests.Crests.Wanderer
@@ -14,7 +13,8 @@ namespace RebalancedCrests.Crests.Wanderer
     /// - IsWandererLucky drives both the random crit roll (DamageEnemies.DoDamage) and the vanilla harp on the HUD
     ///   (BindOrbHudFrame). It returns false inside the roll and "harp full" everywhere else, so the HUD harp appears
     ///   when the harp is full.
-    /// - The Nail Arts state "Wanderer Attack" (activates the Needle Strike) consumes a full harp.
+    /// - The Nail Arts states that activate the Needle Strike ("Wanderer Attack", or "Do Slash" with the single
+    ///   swipe) consume a full harp. "Do Slash" is shared with other crests; the action only acts with Wanderer.
     /// - HealthManager.TakeDamage marks the hits of that Needle Strike as critical.
     /// </summary>
     [HarmonyPatch]
@@ -44,10 +44,27 @@ namespace RebalancedCrests.Crests.Wanderer
 
         internal override void Apply(HeroController hero)
         {
-            var state = hero.GetFsm("Nail Arts").GetState("Wanderer Attack");
-            if (!state.HasAction<NeedleStrikeAction>(action => action.Tweak == this))
+            // Wanderer's own Needle Strike, and Hunter's when 'Needle Strike - Single powerful swipe' is on
+            foreach (var stateName in new[] { "Wanderer Attack", "Do Slash" })
             {
-                state.AddAction(new NeedleStrikeAction(this));
+                var state = hero.GetFsm("Nail Arts").GetState(stateName);
+                if (!state.HasAction<CallbackAction>(action => action.Tweak == this))
+                {
+                    state.AddAction(new CallbackAction(this, _ => OnNeedleStrike()));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Runs when the Needle Strike is activated: a full harp is consumed and makes this strike critical.
+        /// </summary>
+        private void OnNeedleStrike()
+        {
+            _criticalNeedleStrike = IsActive && HarpFull;
+            if (_criticalNeedleStrike)
+            {
+                _strings = 0;
+                DebugLog.Tweak(this, "Critical Strike: Needle Strike is critical");
             }
         }
 
@@ -101,31 +118,6 @@ namespace RebalancedCrests.Crests.Wanderer
             if (_instance._criticalNeedleStrike && _instance.IsActive && IsNeedleStrike(hitInstance))
             {
                 hitInstance.CriticalHit = true;
-            }
-        }
-
-        /// <summary>
-        /// Runs when the Needle Strike is activated: a full harp is consumed and makes this strike critical.
-        /// </summary>
-        private sealed class NeedleStrikeAction : FsmStateAction
-        {
-            internal NeedleStrikeAction(CriticalStrikeTweak tweak)
-            {
-                Tweak = tweak;
-            }
-
-            internal CriticalStrikeTweak Tweak { get; }
-
-            public override void OnEnter()
-            {
-                Tweak._criticalNeedleStrike = Tweak.IsActive && Tweak.HarpFull;
-                if (Tweak._criticalNeedleStrike)
-                {
-                    Tweak._strings = 0;
-                    Core.DebugLog.Tweak(Tweak, "Critical Strike: Needle Strike is critical");
-                }
-
-                Finish();
             }
         }
     }
