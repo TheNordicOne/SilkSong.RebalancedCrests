@@ -42,6 +42,6 @@ Status: done, planned (tuning of existing mechanics), deferred (new feature, don
 | Proposal | Status |
 |---|---|
 | Sprint slash without startup delay | done |
-| Replace the 2% critical hit passive with Critical Strike: needle hits fill a harp, a full harp makes the next needle strike a guaranteed 3x critical hit | deferred |
+| Replace the 2% critical hit passive with Critical Strike: needle hits fill a harp, a full harp makes the next needle strike a guaranteed 3x critical hit | done |
 | New needle strike: a single powerful swipe (alternative: every strike of the current one gives silk) | deferred |
 | Tool slots unchanged | – |

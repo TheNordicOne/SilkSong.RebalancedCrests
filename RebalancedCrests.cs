@@ -5,6 +5,7 @@ using RebalancedCrests.Core;
 using RebalancedCrests.Crests;
 using RebalancedCrests.Crests.Hunter;
 using RebalancedCrests.Crests.Reaper;
+using RebalancedCrests.Crests.Wanderer;
 using RebalancedCrests.Crests.Shared;
 using RebalancedCrests.Diagnostics;
 
@@ -37,6 +38,7 @@ namespace RebalancedCrests
             _tweaks.Add(new HarvestBindTweak(Config));
 
             _tweaks.Add(new SprintSlashWindupTweak(Config, Crest.Wanderer, 0.1111f, 2, "Wanderer Nml", "Wanderer Alt"));
+            _tweaks.Add(new CriticalStrikeTweak(Config));
 
             DebugLog.Init(Config, Logger);
             CrestDump.Init(Config, Logger);
