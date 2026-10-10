@@ -34,7 +34,7 @@ Status: done, planned (tuning of existing mechanics), deferred (new feature, don
 | Silk Steal (bind effect): fixed Silk fragment count per hit instead of random 1-3 | done |
 | Bind: needle strike drops significantly more fragments | done |
 | Bind: taking damage does not end Silk Steal; each successful attack reduces the remaining duration by 1 s instead | done |
-| Harvest Bind: Up + Bind for 4 silk grants Silk Steal without healing | deferred |
+| Harvest Bind: Up + Bind for 4 silk grants Silk Steal without healing | done |
 | Tool slots unchanged | – |
 
 ## Wanderer ([video](https://www.youtube.com/watch?v=yMxEuaWvhGQ))

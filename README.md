@@ -48,6 +48,7 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 | Silk Steal (bind effect): fixed Silk fragments per hit | `Silk Steal - Fixed fragments per hit`, `Silk Steal - Fragments per hit` (default 2) | random 1-3 |
 | Silk Steal: Needle Strike drops more Silk fragments | `Silk Steal - More Needle Strike fragments`, `Silk Steal - Needle Strike fragments per hit` (default 6) | same as other hits |
 | Silk Steal is kept when taking damage; each hit shortens it instead | `Silk Steal - Kept on damage`, `Silk Steal - Seconds lost per hit` (default 1) | ends on damage |
+| Harvest Bind: Up + Bind is a quick bind (like Architect's Craft Bind) that starts Silk Steal without healing; Warding Bell and Injector Band apply | `Bind - Harvest Bind on Up`, `Harvest Bind - Silk cost` (default 4) | Up + Bind is a normal bind |
 
 ### Wanderer
 
