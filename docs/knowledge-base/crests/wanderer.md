@@ -358,7 +358,19 @@ Applied after `IsImmuneTo`, `ApplyDamageScaling` and the rapid-bullet/bomb/storm
   - true → false: `PlayFrameAnim(wandererFullEndAnim)` and `wandererHarpDisappearAudio`.
   - The sounds play only when `!hc.IsRefillSoundsSuppressed`, `HudCanvas.IsVisible` and `ScreenFaderState.Alpha < 0.5`.
 - The HUD therefore shows the silk ≥ 9 / not maggoted state, not the crit itself or `QueuedNextHitCritical` / `CriticalHitsLocked`.
-- "Harp" appears in the code only in the two audio field names. The serialized values of `wandererFullAnim` / `wandererFullEndAnim` and the audio clips are not in the dump. The `HUD Anim` tk2d library contains `HUD Frame Wanderer` (15 fps, 4 frames), `HUD Frame Wanderer Appear` (15 / 6), `HUD Frame Wanderer Idle` (15 / 1), `HUD Frame Wanderer End` (15 / 3), `HUD Frame Wanderer Full` (15 / 4 = 0.2667 s) and `HUD Frame Wanderer Full End` (15 / 4); `HUD anim Steel Soul` has the same names (`End` 4 frames, `Full End` 3 frames). The sprite content of these clips is not in the dump.
+- "Harp" appears in the code only in the two audio field names.
+- Clip frames (`hud_assets_all.bundle`, sprites `HUD_frame_Wanderer0000`–`0012`, all with the same untrimmed bounds, so every frame is drawn in the same place):
+
+  | Clip | Sprites |
+  |---|---|
+  | `HUD Frame Wanderer Appear` | 0000–0005 |
+  | `HUD Frame Wanderer Idle` | 0005 |
+  | `HUD Frame Wanderer End` | 0004, 0003, 0002 |
+  | `HUD Frame Wanderer` | 0002–0005 |
+  | `HUD Frame Wanderer Full` | 0008, 0009, 0010, 0011 |
+  | `HUD Frame Wanderer Full End` | 0010, 0009, 0008, 0005 |
+
+- Sprite contents: 0005 is the closed harp frame. 0008 has the harp opened with no strings, 0009 has the strings starting to appear, 0010 shows them fully lit and 0011 is the held "full" frame with about 7 vertical strings. Each frame is a separate drawing: the frame outline moves between 0008, 0009, 0010 and 0011, and no stringless version of 0011 exists. Steel Soul uses `HUD_Frames_Wanderer_SS0000`–`0012` from another collection (via `SteelSoulAnimProxy`).
 
 ---
 

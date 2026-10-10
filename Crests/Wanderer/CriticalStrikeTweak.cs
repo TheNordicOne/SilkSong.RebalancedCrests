@@ -13,6 +13,7 @@ namespace RebalancedCrests.Crests.Wanderer
     /// - IsWandererLucky drives both the random crit roll (DamageEnemies.DoDamage) and the vanilla harp on the HUD
     ///   (BindOrbHudFrame). It returns false inside the roll and "harp full" everywhere else, so the HUD harp appears
     ///   when the harp is full.
+    /// - While the harp fills, the HUD shows the first frames of the harp's Full animation (HarpHudDisplay).
     /// - The Nail Arts states that activate the Needle Strike ("Wanderer Attack", or "Do Slash" with the single
     ///   swipe) consume a full harp. "Do Slash" is shared with other crests; the action only acts with Wanderer.
     /// - HealthManager.TakeDamage marks the hits of that Needle Strike as critical.
@@ -40,7 +41,15 @@ namespace RebalancedCrests.Crests.Wanderer
 
         private ConfigEntry<int> HitsToFill { get; }
 
-        private bool HarpFull => _strings >= HitsToFill.Value;
+        internal static CriticalStrikeTweak Instance => _instance;
+
+        internal bool HarpFull => _strings >= HitsToFill.Value;
+
+        /// <summary>
+        /// Stage of a harp that is filling: 0 for the first half of the hits, 1 for the second half, -1 when the
+        /// harp is empty or full. Shown on the HUD by <see cref="HarpHudDisplay"/>.
+        /// </summary>
+        internal int FillingStage => _strings == 0 || HarpFull ? -1 : _strings * 2 / HitsToFill.Value;
 
         internal override void Apply(HeroController hero)
         {
