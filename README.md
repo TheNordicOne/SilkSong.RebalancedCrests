@@ -45,7 +45,7 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 | Run-slash has no windup | `Run-slash - Shorter windup`, `Run-slash - Windup seconds` (default 0) | 0.125 s windup |
 | Bigger Needle Strike | `Needle Strike - Bigger`, `Needle Strike - Size multiplier` (default 1.25) | 1 |
 | Down-slash (pogo) hits instantly, keeps control of Hornet and no longer pulls her diagonally; keeps its slow attack speed | `Down-slash - Instant, keeps control` | 0.1667 s windup, ~0.5 s without control |
-| Silk Steal (bind effect): fixed Silk fragments per hit | `Silk Steal - Fixed fragments per hit`, `Silk Steal - Fragments per hit` (default 2) | random 1-3 |
+| Silk Steal (bind effect): fixed Silk fragments per hit | `Silk Steal - Fixed fragments per hit`, `Silk Steal - Fragments per hit` (default 2) | random 1-3 (enemies that always drop 1 stay unchanged) |
 | Silk Steal: Needle Strike drops more Silk fragments | `Silk Steal - More Needle Strike fragments`, `Silk Steal - Needle Strike fragments per hit` (default 6) | same as other hits |
 | Silk Steal is kept when taking damage; each hit shortens it instead | `Silk Steal - Kept on damage`, `Silk Steal - Seconds lost per hit` (default 1) | ends on damage |
 | Harvest Bind: Up + Bind is a quick bind (like Architect's Craft Bind) that starts Silk Steal without healing; Warding Bell and Injector Band apply | `Bind - Harvest Bind on Up`, `Harvest Bind - Silk cost` (default 4) | Up + Bind is a normal bind |

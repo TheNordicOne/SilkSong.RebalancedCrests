@@ -11,7 +11,7 @@ namespace RebalancedCrests.Crests.Reaper
     {
         internal FixedSilkBundlesTweak(ConfigFile config)
             : base(config, Crest.Reaper, "Silk Steal - Fixed fragments per hit",
-                "During Silk Steal (Reaper's bind effect), every hit drops the same number of Silk fragments. Vanilla: random 1-3 (average 1.8).")
+                "During Silk Steal (Reaper's bind effect), every hit drops the same number of Silk fragments. Vanilla: random 1-3 (average 1.8). Enemies that always drop 1 fragment are not changed.")
         {
             Count = config.Bind(Crest.Name, "Silk Steal - Fragments per hit", 2,
                 new ConfigDescription("Silk fragments per hit. 3 fragments = 1 Silk.", new AcceptableValueRange<int>(0, 9)));
