@@ -62,16 +62,33 @@ namespace RebalancedCrests.Crests.Reaper
             if (hit.Value.AttackType == AttackTypes.Heavy && NeedleStrike != null && NeedleStrike.IsActive)
             {
                 __result = NeedleStrike.Count.Value;
+                DebugLog.Tweak(NeedleStrike, $"Silk Steal: Needle Strike hit drops {__result} fragments");
                 return false;
             }
 
             if (Fixed != null && Fixed.IsActive)
             {
                 __result = Fixed.Count.Value;
+                DebugLog.Tweak(Fixed, $"Silk Steal: hit drops {__result} fragments");
                 return false;
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Logs hits on enemies whose bundle tier is not Normal: they never call GetReaperPayout (Reduced always drops
+        /// 1 fragment, None drops 0), so the tweaks do not apply to them.
+        /// </summary>
+        [HarmonyPatch(typeof(HealthManager), "TakeDamage")]
+        [HarmonyPrefix]
+        private static void LogBundleTier(HealthManager __instance)
+        {
+            if (Fixed != null && Fixed.IsActive && HeroController.instance.ReaperState.IsInReaperMode
+                && __instance.reaperBundles != HealthManager.ReaperBundleTiers.Normal)
+            {
+                DebugLog.Tweak(Fixed, $"Silk Steal: '{__instance.name}' has bundle tier {__instance.reaperBundles}, not changed");
+            }
         }
     }
 }
