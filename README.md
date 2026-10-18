@@ -12,7 +12,7 @@ It implements all the proposed changes as best as possible, while keeping everyt
 - **Hunter:** faster pogo and run-slash, no Needle Strike pushback, upgraded crest keeps some focus when hit
 - **Reaper:** up-slash in front, faster run-slash, bigger Needle Strike, instant pogo, better Silk Steal, new Harvest Bind, second silk skill slot
 - **Wanderer:** faster run-slash, Critical Strike harp instead of random crits, optional single-swipe Needle Strike, Silk on every Needle Strike hit
-- **Beast:** extra blue tool slot
+- **Beast:** a blue tool slot
 
 With a BepInEx configuration manager installed, press F1 in game to open the settings. There you can tweak the numbers or toggle the tweaks.
 
@@ -75,7 +75,7 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Extra blue tool slot above the Up tool slot (unlocked from the start) | `Tool slots - Extra blue slot` | no slot there |
+| Blue tool slot: replaces the left yellow slot (still has to be unlocked), or a new unlocked slot above the Up tool slot | `Tool slots - Extra blue slot`, `Tool slots - Extra blue slot placement` (default ReplaceYellowSlot) | no blue slot |
 
 ## Requirements
 
