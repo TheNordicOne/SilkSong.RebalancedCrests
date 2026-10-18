@@ -3,6 +3,7 @@ using BepInEx;
 using HarmonyLib;
 using RebalancedCrests.Core;
 using RebalancedCrests.Crests;
+using RebalancedCrests.Crests.Beast;
 using RebalancedCrests.Crests.Hunter;
 using RebalancedCrests.Crests.Reaper;
 using RebalancedCrests.Crests.Wanderer;
@@ -42,6 +43,8 @@ namespace RebalancedCrests
             _tweaks.Add(new CriticalStrikeTweak(Config));
             _tweaks.Add(new SingleSwipeNeedleStrikeTweak(Config));
             _tweaks.Add(new NeedleStrikeSilkTweak(Config));
+
+            _tweaks.Add(new ExtraBlueSlotTweak(Config));
 
             DebugLog.Init(Config, Logger);
             CrestDump.Init(Config, Logger);

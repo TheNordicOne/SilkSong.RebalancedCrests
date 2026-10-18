@@ -12,6 +12,7 @@ It implements all the proposed changes as best as possible, while keeping everyt
 - **Hunter:** faster pogo and run-slash, no Needle Strike pushback, upgraded crest keeps some focus when hit
 - **Reaper:** up-slash in front, faster run-slash, bigger Needle Strike, instant pogo, better Silk Steal, new Harvest Bind, second silk skill slot
 - **Wanderer:** faster run-slash, Critical Strike harp instead of random crits, optional single-swipe Needle Strike, Silk on every Needle Strike hit
+- **Beast:** extra blue tool slot
 
 With a BepInEx configuration manager installed, press F1 in game to open the settings. There you can tweak the numbers or toggle the tweaks.
 
@@ -69,6 +70,12 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 | Critical Strike replaces random critical hits: once you have Needle Strike, nail hits fill the harp (HUD harp opens at the first hit, strings appear at half, full harp at the end); a full harp makes the next Needle Strike critical (3× damage) | `Critical hits - Critical Strike`, `Critical Strike - Hits to fill harp` (default 7) | 2 % crit chance per nail hit at 9+ Silk |
 | Needle Strike is a single powerful swipe (Hunter's normal slash, scaled up, with the damage of Hunter's Needle Strike) instead of a flurry of weak hits | `Needle Strike - Single powerful swipe`, `Needle Strike - Swipe damage multiplier` (default 1), `Needle Strike - Swipe size multiplier` (default 1.5) | multi-hit flurry |
 | Every hit of the multi-hit Needle Strike gives Silk (only matters with the single swipe off) | `Needle Strike - Silk on every hit` | only the first hit gives Silk |
+
+### Beast
+
+| Change | Config | Vanilla |
+|---|---|---|
+| Extra blue tool slot above the Up tool slot (unlocked from the start) | `Tool slots - Extra blue slot` | no slot there |
 
 ## Requirements
 
