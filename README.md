@@ -1,12 +1,17 @@
 # Rebalanced Crests
 
-TODO short description
+Rebalanced Crests with several tweaks and some new mechanics.
 
 ## Description
 
-TODO
+This mod is based on Hollands [Crest Reworks Series](https://www.youtube.com/playlist?list=PLOkGZTjTZ_Mlh9yaNjvVGT2tbgU-b32Kc).
 
-Installation instructions
+It implements all the proposed changes as best as possible, while keeping everything configurable.
+
+Press F1 in game to open the settings. There you can tweak the numbers or toggle the tweaks.
+
+## Installation instructions
+
 The easiest way is to install it from Thunderstore with a mod manager like r2modman or Gale.
 
 For a manual install you will need to have the BepInEx mod loader installed. Check out
