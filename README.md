@@ -63,6 +63,7 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 | The glow around Hornet fades in and out during the last seconds of Silk Steal | `Silk Steal - Blink on Hornet before ending`, `Silk Steal - Blink seconds` (default 3), `Silk Steal - Blink speed` (default 0.15) | glow stays |
 | Harvest Bind: Up + Bind is a quick bind (like Architect's Craft Bind) that starts Silk Steal without healing; Warding Bell and Injector Band apply | `Bind - Harvest Bind on Up`, `Harvest Bind - Silk cost` (default 4) | Up + Bind is a normal bind |
 | The Up tool slot holds a silk skill instead of a red tool; Up + skill uses it (a red tool equipped there is unequipped) | `Tool slots - Up slot holds a silk skill` | red tool slot |
+| The Up silk skill slot has to be unlocked with a Memory Locket | `Tool slots - Up skill slot needs a Memory Locket` | unlocked from the start |
 
 ### Wanderer
 
