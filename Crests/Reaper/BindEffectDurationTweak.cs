@@ -9,8 +9,8 @@ using RebalancedCrests.Core;
 namespace RebalancedCrests.Crests.Reaper
 {
     /// <summary>
-    /// Silk Steal (Reaper bind effect, reaper mode) is no longer cancelled by taking damage; instead every hit on an enemy that would drop
-    /// silk bundles shortens the remaining duration. Vanilla: HeroController.TakeDamage calls ResetReaperCrestState()
+    /// Silk Steal (Reaper bind effect, reaper mode) is no longer cancelled by taking damage, so it always lasts its full
+    /// duration (Gameplay.ReaperModeDuration, 10 s). Vanilla: HeroController.TakeDamage calls ResetReaperCrestState()
     /// on any damage; that single call is redirected.
     /// </summary>
     [HarmonyPatch]
@@ -20,16 +20,11 @@ namespace RebalancedCrests.Crests.Reaper
 
         internal BindEffectDurationTweak(ConfigFile config)
             : base(config, Crest.Reaper, "Silk Steal - Kept on damage",
-                "Taking damage no longer ends Silk Steal (Reaper's bind effect); each successful hit shortens it instead. "
+                "Taking damage no longer ends Silk Steal (Reaper's bind effect); it always lasts its full 10 seconds. "
                 + "Vanilla: taking damage ends it.")
         {
-            SecondsPerHit = config.Bind(Crest.Name, "Silk Steal - Seconds lost per hit", 1f,
-                new ConfigDescription("Seconds of Silk Steal lost per successful hit. Vanilla duration: 10 seconds.",
-                    new AcceptableValueRange<float>(0f, 10f)));
             _instance = this;
         }
-
-        private ConfigEntry<float> SecondsPerHit { get; }
 
         [HarmonyPatch(typeof(HeroController), nameof(HeroController.TakeDamage))]
         [HarmonyTranspiler]
@@ -59,37 +54,6 @@ namespace RebalancedCrests.Crests.Reaper
         private static void OnHeroDamaged(HeroController hero)
         {
             if (_instance == null || !_instance.IsActive)
-            {
-                hero.ResetReaperCrestState();
-            }
-        }
-
-        /// <summary>
-        /// Same hit conditions as the vanilla bundle drop in HealthManager.TakeDamage (nail hits and nail-tagged heavy
-        /// hits that generate silk, on enemies that give silk).
-        /// </summary>
-        [HarmonyPatch(typeof(HealthManager), "TakeDamage")]
-        [HarmonyPostfix]
-        private static void ShortenOnHit(HealthManager __instance, HitInstance hitInstance)
-        {
-            var hero = HeroController.instance;
-            if (_instance == null || !_instance.IsActive || hero == null || !hero.reaperState.IsInReaperMode
-                || __instance.enemyType == HealthManager.EnemyTypes.Shade
-                || __instance.enemyType == HealthManager.EnemyTypes.Armoured
-                || __instance.DoNotGiveSilk)
-            {
-                return;
-            }
-
-            var isNailHit = hitInstance.AttackType == AttackTypes.Nail
-                            || (hitInstance.AttackType == AttackTypes.Heavy && hitInstance.IsNailTag);
-            if (!isNailHit || hitInstance.SilkGeneration == HitSilkGeneration.None)
-            {
-                return;
-            }
-
-            hero.reaperState.ReaperModeDurationLeft -= _instance.SecondsPerHit.Value;
-            if (hero.reaperState.ReaperModeDurationLeft <= 0f)
             {
                 hero.ResetReaperCrestState();
             }
