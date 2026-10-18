@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using BepInEx.Configuration;
 using HarmonyLib;
 using RebalancedCrests.Core;
@@ -7,14 +8,14 @@ namespace RebalancedCrests.Crests.Reaper
 {
     /// <summary>
     /// Warns that Silk Steal (reaper mode) is about to end: during its last seconds the glow of the Reaper HUD frame
-    /// (BindOrbHudFrame.reaperModeEffect) blinks, switching between full and <see cref="BlinkAlpha"/> every
-    /// <see cref="BlinkInterval"/> seconds of ReaperModeDurationLeft. ReaperCrestRoutine sets the glow to full when
-    /// reaper mode begins and fades it out when it ends; SilkStealBlinkDisplay sets the alpha in between.
+    /// (BindOrbHudFrame.reaperModeEffect, "crest_reaper_effects") blinks, hidden and shown every
+    /// <see cref="BlinkInterval"/> seconds of ReaperModeDurationLeft. The NestedFadeGroup alpha does not reach its
+    /// visible renderer ("reaper_halo_loop"), so SilkStealBlinkDisplay disables its enabled renderers instead and
+    /// re-enables them afterwards.
     /// </summary>
     [HarmonyPatch]
     internal sealed class SilkStealTimerTweak : Tweak
     {
-        internal const float BlinkAlpha = 0.15f;
         internal const float BlinkInterval = 0.15f;
 
         internal SilkStealTimerTweak(ConfigFile config)
@@ -43,6 +44,8 @@ namespace RebalancedCrests.Crests.Reaper
 
     internal sealed class SilkStealBlinkDisplay : MonoBehaviour
     {
+        private readonly List<Renderer> _hidden = new List<Renderer>();
+
         internal BindOrbHudFrame Frame { get; set; }
 
         private void LateUpdate()
@@ -50,16 +53,33 @@ namespace RebalancedCrests.Crests.Reaper
             var tweak = SilkStealTimerTweak.Instance;
             var hero = HeroController.instance;
             var glow = Frame.reaperModeEffect;
-            if (tweak == null || !tweak.IsActive || hero == null || !glow || !hero.reaperState.IsInReaperMode
-                || !Frame.isActive || Frame.currentFrameAnims != Frame.reaperFrameAnims)
+            var blinkOff = tweak != null && tweak.IsActive && hero != null && glow && hero.reaperState.IsInReaperMode
+                           && Frame.isActive && Frame.currentFrameAnims == Frame.reaperFrameAnims
+                           && hero.reaperState.ReaperModeDurationLeft <= tweak.BlinkSeconds.Value
+                           && Mathf.FloorToInt(hero.reaperState.ReaperModeDurationLeft / SilkStealTimerTweak.BlinkInterval) % 2 == 1;
+            if (blinkOff)
             {
-                return;
+                foreach (var renderer in glow.GetComponentsInChildren<Renderer>())
+                {
+                    if (renderer.enabled)
+                    {
+                        renderer.enabled = false;
+                        _hidden.Add(renderer);
+                    }
+                }
             }
+            else if (_hidden.Count > 0)
+            {
+                foreach (var renderer in _hidden)
+                {
+                    if (renderer)
+                    {
+                        renderer.enabled = true;
+                    }
+                }
 
-            var timeLeft = hero.reaperState.ReaperModeDurationLeft;
-            var blinkOff = timeLeft <= tweak.BlinkSeconds.Value
-                           && Mathf.FloorToInt(timeLeft / SilkStealTimerTweak.BlinkInterval) % 2 == 1;
-            glow.AlphaSelf = blinkOff ? SilkStealTimerTweak.BlinkAlpha : 1f;
+                _hidden.Clear();
+            }
         }
     }
 }
