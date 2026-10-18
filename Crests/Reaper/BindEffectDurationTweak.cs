@@ -20,7 +20,7 @@ namespace RebalancedCrests.Crests.Reaper
 
         internal BindEffectDurationTweak(ConfigFile config)
             : base(config, Crest.Reaper, "Silk Steal - Kept on damage",
-                "Taking damage no longer ends Silk Steal (Reaper's bind effect); it always lasts its full 10 seconds. "
+                "Taking damage no longer ends Silk Steal (Reaper's bind effect); it always lasts its full duration. "
                 + "Vanilla: taking damage ends it.")
         {
             _instance = this;

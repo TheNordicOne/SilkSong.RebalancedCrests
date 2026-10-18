@@ -1,32 +1,31 @@
 using System.Collections.Generic;
 using BepInEx.Configuration;
-using HarmonyLib;
 using RebalancedCrests.Core;
 using UnityEngine;
 
 namespace RebalancedCrests.Crests.Reaper
 {
     /// <summary>
-    /// Warns that Silk Steal (reaper mode) is about to end: during its last seconds the glow of the Reaper HUD frame
-    /// (BindOrbHudFrame.reaperModeEffect, "crest_reaper_effects") blinks, hidden and shown every
-    /// 'Blink speed' seconds of ReaperModeDurationLeft. The NestedFadeGroup alpha does not reach its
-    /// visible renderer ("reaper_halo_loop"), so SilkStealBlinkDisplay disables its enabled renderers instead and
-    /// re-enables them afterwards.
+    /// Warns that Silk Steal (reaper mode) is about to end: during its last seconds the glow around Hornet
+    /// (HeroController.reaperModeEffect, "crest_reaper_effects(Clone)") pulses, fading out and in once per
+    /// 2 × 'Blink speed' seconds of ReaperModeDurationLeft. Its sprites ("glow", "reaper_halo_loop",
+    /// "reaper_halo_burst") are SpriteRenderers; their alpha is scaled in LateUpdate, after the effect's Animator, and
+    /// restored when the pulse ends. The "Fury_ring" particles are not faded.
     /// </summary>
-    [HarmonyPatch]
     internal sealed class SilkStealTimerTweak : Tweak
     {
+        internal const float MinAlpha = 0.1f;
+
         internal SilkStealTimerTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "Silk Steal - Blink on HUD before ending",
-                "The glow around the HUD frame blinks during the last seconds of Silk Steal. "
-                + "Vanilla: the glow stays full until Silk Steal ends.")
+            : base(config, Crest.Reaper, "Silk Steal - Blink on Hornet before ending",
+                "The glow around Hornet fades in and out during the last seconds of Silk Steal. "
+                + "Vanilla: the glow stays until Silk Steal ends.")
         {
             BlinkSeconds = config.Bind(Crest.Name, "Silk Steal - Blink seconds", 3f,
-                new ConfigDescription("How many seconds before Silk Steal ends the glow starts blinking. "
-                    + "Silk Steal lasts 10 seconds.",
+                new ConfigDescription("How many seconds before Silk Steal ends the glow starts blinking.",
                     new AcceptableValueRange<float>(0.5f, 10f)));
-            BlinkInterval = config.Bind(Crest.Name, "Silk Steal - Blink speed", 0.5f,
-                new ConfigDescription("Seconds the glow stays hidden, and then shown, per blink. Lower is faster.",
+            BlinkInterval = config.Bind(Crest.Name, "Silk Steal - Blink speed", 0.15f,
+                new ConfigDescription("Seconds the glow takes to fade out, and then in, per blink. Lower is faster.",
                     new AcceptableValueRange<float>(0.05f, 1f)));
             Instance = this;
         }
@@ -37,95 +36,72 @@ namespace RebalancedCrests.Crests.Reaper
 
         internal ConfigEntry<float> BlinkInterval { get; }
 
-        [HarmonyPatch(typeof(BindOrbHudFrame), "Awake")]
-        [HarmonyPostfix]
-        private static void Attach(BindOrbHudFrame __instance)
+        internal override void Apply(HeroController hero)
         {
-            __instance.gameObject.AddComponent<SilkStealBlinkDisplay>().Frame = __instance;
+            if (!hero.GetComponent<SilkStealBlinkDisplay>())
+            {
+                hero.gameObject.AddComponent<SilkStealBlinkDisplay>();
+            }
         }
     }
 
-    /// <summary>
-    /// Blinks the glow around Hornet (HeroController.reaperModeEffect) like the HUD glow, with the blink settings of
-    /// <see cref="SilkStealTimerTweak"/>.
-    /// </summary>
-    internal sealed class SilkStealHeroBlinkTweak : Tweak
-    {
-        internal SilkStealHeroBlinkTweak(ConfigFile config)
-            : base(config, Crest.Reaper, "Silk Steal - Blink on Hornet before ending",
-                "The glow around Hornet blinks during the last seconds of Silk Steal (uses 'Silk Steal - Blink seconds' "
-                + "and 'Silk Steal - Blink speed'). Vanilla: the glow stays until Silk Steal ends.")
-        {
-            Instance = this;
-        }
-
-        internal static SilkStealHeroBlinkTweak Instance { get; private set; }
-    }
-
-    /// <summary>
-    /// Hides the enabled renderers of the HUD crest frame and of Hornet's glow during the off phases of the blink and
-    /// shows them again afterwards.
-    /// </summary>
     internal sealed class SilkStealBlinkDisplay : MonoBehaviour
     {
-        private readonly List<Renderer> _hiddenHud = new List<Renderer>();
-        private readonly List<Renderer> _hiddenHero = new List<Renderer>();
+        private readonly Dictionary<SpriteRenderer, float> _baseAlpha = new Dictionary<SpriteRenderer, float>();
+        private HeroController _hero;
 
-        internal BindOrbHudFrame Frame { get; set; }
+        private void Awake()
+        {
+            _hero = GetComponent<HeroController>();
+        }
 
         private void LateUpdate()
         {
-            var timing = SilkStealTimerTweak.Instance;
-            var hero = HeroController.instance;
-            var blinkOff = timing != null && hero != null && hero.reaperState.IsInReaperMode
-                           && hero.reaperState.ReaperModeDurationLeft <= timing.BlinkSeconds.Value
-                           && Mathf.FloorToInt(hero.reaperState.ReaperModeDurationLeft / timing.BlinkInterval.Value) % 2 == 1;
-
-            // the crest frame sprite (tk2d mesh of the Bind Orb object) plays the pulsing Silk Steal animation
-            SetHidden(_hiddenHud, HudRenderers, blinkOff && timing.IsActive && Frame.isActive
-                                             && Frame.currentFrameAnims == Frame.reaperFrameAnims);
-
-            SetHidden(_hiddenHero, () => hero.reaperModeEffect.GetComponentsInChildren<Renderer>(),
-                blinkOff && SilkStealHeroBlinkTweak.Instance?.IsActive == true && hero.reaperModeEffect);
-        }
-
-        private IEnumerable<Renderer> HudRenderers()
-        {
-            yield return Frame.GetComponent<Renderer>();
-            if (Frame.reaperModeEffect)
+            var tweak = SilkStealTimerTweak.Instance;
+            var glow = _hero.reaperModeEffect;
+            var state = _hero.reaperState;
+            if (tweak == null || !tweak.IsActive || !glow || !state.IsInReaperMode
+                || state.ReaperModeDurationLeft > tweak.BlinkSeconds.Value)
             {
-                foreach (var renderer in Frame.reaperModeEffect.GetComponentsInChildren<Renderer>())
+                Restore();
+                return;
+            }
+
+            // 1 at the start of each blink, MinAlpha halfway through it
+            var phase = state.ReaperModeDurationLeft / tweak.BlinkInterval.Value * Mathf.PI;
+            var factor = Mathf.Lerp(SilkStealTimerTweak.MinAlpha, 1f, 0.5f + 0.5f * Mathf.Cos(phase));
+            foreach (var sprite in glow.GetComponentsInChildren<SpriteRenderer>())
+            {
+                if (!_baseAlpha.TryGetValue(sprite, out var baseAlpha))
                 {
-                    yield return renderer;
+                    baseAlpha = sprite.color.a;
+                    _baseAlpha[sprite] = baseAlpha;
                 }
+
+                var color = sprite.color;
+                color.a = baseAlpha * factor;
+                sprite.color = color;
             }
         }
 
-        private static void SetHidden(List<Renderer> hidden, System.Func<IEnumerable<Renderer>> renderers, bool hide)
+        private void Restore()
         {
-            if (hide)
+            if (_baseAlpha.Count == 0)
             {
-                foreach (var renderer in renderers())
-                {
-                    if (renderer && renderer.enabled)
-                    {
-                        renderer.enabled = false;
-                        hidden.Add(renderer);
-                    }
-                }
+                return;
             }
-            else if (hidden.Count > 0)
-            {
-                foreach (var renderer in hidden)
-                {
-                    if (renderer)
-                    {
-                        renderer.enabled = true;
-                    }
-                }
 
-                hidden.Clear();
+            foreach (var entry in _baseAlpha)
+            {
+                if (entry.Key)
+                {
+                    var color = entry.Key.color;
+                    color.a = entry.Value;
+                    entry.Key.color = color;
+                }
             }
+
+            _baseAlpha.Clear();
         }
     }
 }
