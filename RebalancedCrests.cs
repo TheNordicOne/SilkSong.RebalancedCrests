@@ -12,7 +12,7 @@ using RebalancedCrests.Diagnostics;
 
 namespace RebalancedCrests
 {
-    [BepInPlugin("com.thenordicone.rebalancedcrests", "Rebalanced Crests", "1.1.0")]
+    [BepInPlugin("com.thenordicone.rebalancedcrests", "Rebalanced Crests", "1.2.0")]
     public class RebalancedCrests : BaseUnityPlugin
     {
         private readonly List<Tweak> _tweaks = new List<Tweak>();
