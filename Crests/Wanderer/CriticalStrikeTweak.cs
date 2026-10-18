@@ -1,6 +1,7 @@
 using BepInEx.Configuration;
 using HarmonyLib;
 using RebalancedCrests.Core;
+using UnityEngine;
 
 namespace RebalancedCrests.Crests.Wanderer
 {
@@ -75,6 +76,15 @@ namespace RebalancedCrests.Crests.Wanderer
                 _strings = 0;
                 DebugLog.Tweak(this, "Critical Strike: Needle Strike is critical");
             }
+        }
+
+        /// <summary>
+        /// Adds strings to the harp, up to full.
+        /// </summary>
+        internal void AddStrings(int count)
+        {
+            _strings = Mathf.Min(_strings + count, HitsToFill.Value);
+            DebugLog.Tweak(this, $"Critical Strike harp {_strings}/{HitsToFill.Value}");
         }
 
         private static bool IsNeedleStrike(HitInstance hit)

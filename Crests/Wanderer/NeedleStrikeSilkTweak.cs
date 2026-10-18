@@ -12,7 +12,8 @@ namespace RebalancedCrests.Crests.Wanderer
         internal NeedleStrikeSilkTweak(ConfigFile config)
             : base(config, Crest.Wanderer, "Needle Strike - Silk on every hit",
                 "Every hit of the Needle Strike gives Silk. Has no effect while 'Needle Strike - Single powerful swipe' "
-                + "is on. Vanilla: only the first hit gives Silk.")
+                + "is on in Always mode; in FullHarpOnly mode 'Needle Strike - Silk every Nth hit' decides. "
+                + "Vanilla: only the first hit gives Silk.")
         {
         }
 
