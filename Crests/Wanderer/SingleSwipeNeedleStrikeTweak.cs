@@ -8,60 +8,58 @@ using UnityEngine;
 namespace RebalancedCrests.Crests.Wanderer
 {
     /// <summary>
-    /// Wanderer uses Hunter's needle strike (one big swing, Charge Slash Basic) instead of its multi-hit one.
+    /// Wanderer's Needle Strike is a single, scaled-up copy of Hunter's normal slash instead of its multi-hit one.
     /// - Nail Arts "Antic Type": the Wanderer crest check is disabled, so the FSM takes the Hunter path (Antic →
     ///   Lunge? → Slash Recoil? → Do Slash). Wanderer's lunge speed and chain are 0 like Hunter's, and its
     ///   chargeSlashRecoils is False, so there is no pushback.
-    /// - "Get Charge Slash": Current Charge Slash is set to Hunter's Charge Slash Basic.
     /// - HeroAnimationController.GetClip returns the base library "Slash_Charged" instead of the Dagger override, so
     ///   the hero animation and its clip triggers match Hunter's timing.
-    /// - Charge Slash Basic has two hitboxes, "slash 01" (0–0.083 s) and "slash 02" (0.217–0.3 s), each 1.4× nail
-    ///   damage. With 'Swipe hits once', DamageEnemies.DoDamage is skipped for "slash 02" and "slash 01" deals the
-    ///   damage of both. The second blade swing is hidden (SecondSwingHider) and its sound ("Audio Player Actor (1)",
-    ///   PlayRandomAudioEvent on enable) is skipped.
+    /// - The swipe is "Wanderer Swipe" under Attacks: a parent with HeroExtraNailSlash (so the game and the other
+    ///   tweaks treat its hits as Needle Strike hits, and it takes the nail imbuement) and a copy of Hunter's
+    ///   "Attacks/Default/Slash" as child. The parent is scaled, because NailAttackBase.OnSlashStarting resets the
+    ///   slash's own scale. The copy is Heavy with the damage of both hits of Hunter's Needle Strike (2 × 1.4 nail
+    ///   damage), and has no NailSlashRecoil, so hits do not push Hornet back.
+    /// - "Get Charge Slash": Current Charge Slash is set to the swipe, so "Do Slash" activates it and "Cancel All"
+    ///   deactivates it. An action added to "Do Slash" starts the slash (NailSlash.StartSlash).
     /// - HealthManager.TakeDamage scales the damage of its hits.
     /// </summary>
     [HarmonyPatch]
     internal sealed class SingleSwipeNeedleStrikeTweak : Tweak
     {
         private const string ChargedClip = "Slash_Charged";
+        private const float NeedleStrikeDamage = 2.8f;
 
         private static SingleSwipeNeedleStrikeTweak _instance;
 
-        private GameObject _hunterChargeSlash;
-        private DamageEnemies _firstHit;
-        private DamageEnemies _secondHit;
-        private PlayRandomAudioEvent _secondSound;
+        private GameObject _swipe;
+        private NailSlash _swipeSlash;
 
         internal SingleSwipeNeedleStrikeTweak(ConfigFile config)
             : base(config, Crest.Wanderer, "Needle Strike - Single powerful swipe",
-                "Replace the multi-hit Needle Strike with Hunter's single big swing. Vanilla: a flurry of weak hits.")
+                "Replace the multi-hit Needle Strike with a single big swing: Hunter's normal slash, scaled up. "
+                + "Vanilla: a flurry of weak hits.")
         {
             DamageMultiplier = config.Bind(Crest.Name, "Needle Strike - Swipe damage multiplier", 1f,
                 new ConfigDescription("Damage multiplier of the single swipe. 1 = same damage as Hunter's Needle Strike.",
                     new AcceptableValueRange<float>(0.5f, 3f)));
-            HitsOnce = config.Bind(Crest.Name, "Needle Strike - Swipe hits once", true,
-                "The swipe hits once with the damage of both hits. Vanilla (Hunter's Needle Strike): two hits about "
-                + "0.2 s apart.");
+            SizeMultiplier = config.Bind(Crest.Name, "Needle Strike - Swipe size multiplier", 1.5f,
+                new ConfigDescription("Size of the single swipe compared to Hunter's normal slash.",
+                    new AcceptableValueRange<float>(1f, 3f)));
             _instance = this;
         }
 
         private ConfigEntry<float> DamageMultiplier { get; }
 
-        private ConfigEntry<bool> HitsOnce { get; }
-
-        internal bool HitsOnceActive => IsActive && HitsOnce.Value;
+        private ConfigEntry<float> SizeMultiplier { get; }
 
         internal override void Apply(HeroController hero)
         {
-            _hunterChargeSlash = hero.configs[0].ChargeSlash;
-            _firstHit = _hunterChargeSlash.transform.Find("slash 01").GetComponent<DamageEnemies>();
-            _secondHit = _hunterChargeSlash.transform.Find("slash 02").GetComponent<DamageEnemies>();
-            _secondSound = _hunterChargeSlash.transform.Find("Audio Player Actor (1)").GetComponent<PlayRandomAudioEvent>();
-            if (!_hunterChargeSlash.GetComponent<SecondSwingHider>())
+            if (!_swipe)
             {
-                _hunterChargeSlash.AddComponent<SecondSwingHider>().Tweak = this;
+                CreateSwipe(hero);
             }
+
+            _swipe.transform.localScale = Vector3.one * SizeMultiplier.Value;
 
             var fsm = hero.GetFsm("Nail Arts");
             var anticType = fsm.GetState("Antic Type");
@@ -78,15 +76,52 @@ namespace RebalancedCrests.Crests.Wanderer
             {
                 if (IsActive)
                 {
-                    currentChargeSlash.Value = _hunterChargeSlash;
+                    currentChargeSlash.Value = _swipe;
                     Core.DebugLog.Tweak(this, "Needle Strike: single swipe");
+                }
+            }));
+
+            fsm.GetState("Do Slash").AddAction(new CallbackAction(this, _ =>
+            {
+                if (IsActive && currentChargeSlash.Value == _swipe)
+                {
+                    _swipeSlash.StartSlash();
                 }
             }));
         }
 
+        private void CreateSwipe(HeroController hero)
+        {
+            var hunterSlash = hero.configs[0].NormalSlashObject;
+            _swipe = new GameObject("Wanderer Swipe");
+            _swipe.SetActive(false);
+            _swipe.transform.SetParent(hunterSlash.transform.parent.parent, false);
+            _swipe.transform.localPosition = hunterSlash.transform.parent.localPosition;
+
+            var slash = Object.Instantiate(hunterSlash, _swipe.transform, false);
+            slash.name = hunterSlash.name;
+            slash.SetActive(true);
+            foreach (var recoil in slash.GetComponents<NailSlashRecoil>())
+            {
+                Object.DestroyImmediate(recoil);
+            }
+
+            _swipeSlash = slash.GetComponent<NailSlash>();
+            _swipeSlash.dontAddRecoiler = true;
+            _swipeSlash.setSlashComponent = false;
+            var damager = slash.GetComponent<DamageEnemies>();
+            damager.attackType = AttackTypes.Heavy;
+            damager.nailDamageMultiplier = NeedleStrikeDamage;
+
+            // HeroExtraNailSlash collects the damagers in Awake, so it is added after the slash
+            var extraSlash = _swipe.AddComponent<HeroExtraNailSlash>();
+            extraSlash.tintSprites = new SpriteRenderer[0];
+            extraSlash.tintTk2dSprites = new tk2dSprite[0];
+        }
+
         private bool IsSwipeHit(HitInstance hit)
         {
-            return _hunterChargeSlash && hit.Source && hit.Source.transform.IsChildOf(_hunterChargeSlash.transform);
+            return _swipe && hit.Source && hit.Source.transform.IsChildOf(_swipe.transform);
         }
 
         [HarmonyPatch(typeof(HeroAnimationController), nameof(HeroAnimationController.GetClip))]
@@ -102,42 +137,14 @@ namespace RebalancedCrests.Crests.Wanderer
             return false;
         }
 
-        [HarmonyPatch(typeof(DamageEnemies), nameof(DamageEnemies.DoDamage), typeof(GameObject), typeof(bool))]
-        [HarmonyPrefix]
-        private static bool SkipSecondHit(DamageEnemies __instance, ref bool __result)
-        {
-            if (__instance != _instance._secondHit || !_instance.HitsOnceActive)
-            {
-                return true;
-            }
-
-            __result = false;
-            return false;
-        }
-
-        [HarmonyPatch(typeof(PlayRandomAudioEvent), "OnEnable")]
-        [HarmonyPrefix]
-        private static bool SkipSecondSound(PlayRandomAudioEvent __instance)
-        {
-            return __instance != _instance._secondSound || !_instance.HitsOnceActive;
-        }
-
         [HarmonyPatch(typeof(HealthManager), "TakeDamage")]
         [HarmonyPrefix]
         private static void ScaleDamage(ref HitInstance hitInstance)
         {
-            if (!_instance.IsActive || !_instance.IsSwipeHit(hitInstance))
+            if (_instance.IsActive && _instance.IsSwipeHit(hitInstance))
             {
-                return;
+                hitInstance.DamageDealt = Mathf.RoundToInt(hitInstance.DamageDealt * _instance.DamageMultiplier.Value);
             }
-
-            var multiplier = _instance.DamageMultiplier.Value;
-            if (_instance.HitsOnceActive && hitInstance.Source == _instance._firstHit.gameObject)
-            {
-                multiplier *= 2;
-            }
-
-            hitInstance.DamageDealt = Mathf.RoundToInt(hitInstance.DamageDealt * multiplier);
         }
     }
 }
