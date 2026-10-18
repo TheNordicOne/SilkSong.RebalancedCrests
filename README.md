@@ -60,6 +60,7 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 | Silk Steal: Needle Strike drops more Silk fragments | `Silk Steal - More Needle Strike fragments`, `Silk Steal - Needle Strike fragments per hit` (default 6) | same as other hits |
 | Silk Steal is kept when taking damage, so it always lasts its full 10 seconds | `Silk Steal - Kept on damage` | ends on damage |
 | Silk Steal timer: the glow around the HUD frame fades as its time runs out | `Silk Steal - Timer on HUD` | glow stays full |
+| Silk Steal timer: the glow around Hornet fades as its time runs out | `Silk Steal - Timer on Hornet` | glow stays full |
 | Harvest Bind: Up + Bind is a quick bind (like Architect's Craft Bind) that starts Silk Steal without healing; Warding Bell and Injector Band apply | `Bind - Harvest Bind on Up`, `Harvest Bind - Silk cost` (default 4) | Up + Bind is a normal bind |
 | The Up tool slot holds a silk skill instead of a red tool; Up + skill uses it (a red tool equipped there is unequipped) | `Tool slots - Up slot holds a silk skill` | red tool slot |
 
