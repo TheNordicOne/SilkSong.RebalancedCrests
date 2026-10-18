@@ -63,7 +63,8 @@ namespace RebalancedCrests.Crests.Reaper
     }
 
     /// <summary>
-    /// Hides the enabled renderers of a glow during the off phases of the blink and shows them again afterwards.
+    /// Hides the enabled renderers of the HUD crest frame and of Hornet's glow during the off phases of the blink and
+    /// shows them again afterwards.
     /// </summary>
     internal sealed class SilkStealBlinkDisplay : MonoBehaviour
     {
@@ -80,28 +81,40 @@ namespace RebalancedCrests.Crests.Reaper
                            && hero.reaperState.ReaperModeDurationLeft <= timing.BlinkSeconds.Value
                            && Mathf.FloorToInt(hero.reaperState.ReaperModeDurationLeft / timing.BlinkInterval.Value) % 2 == 1;
 
-            var hudGlow = Frame.reaperModeEffect;
-            SetHidden(_hiddenHud, hudGlow ? hudGlow.gameObject : null, blinkOff && timing.IsActive && Frame.isActive
-                                                                       && Frame.currentFrameAnims == Frame.reaperFrameAnims);
+            // the crest frame sprite (tk2d mesh of the Bind Orb object) plays the pulsing Silk Steal animation
+            SetHidden(_hiddenHud, HudRenderers, blinkOff && timing.IsActive && Frame.isActive
+                                             && Frame.currentFrameAnims == Frame.reaperFrameAnims);
 
-            var heroGlow = hero != null && hero.reaperModeEffect ? hero.reaperModeEffect.gameObject : null;
-            SetHidden(_hiddenHero, heroGlow, blinkOff && SilkStealHeroBlinkTweak.Instance?.IsActive == true);
+            SetHidden(_hiddenHero, () => hero.reaperModeEffect.GetComponentsInChildren<Renderer>(),
+                blinkOff && SilkStealHeroBlinkTweak.Instance?.IsActive == true && hero.reaperModeEffect);
         }
 
-        private static void SetHidden(List<Renderer> hidden, GameObject glow, bool hide)
+        private IEnumerable<Renderer> HudRenderers()
         {
-            if (hide && glow)
+            yield return Frame.GetComponent<Renderer>();
+            if (Frame.reaperModeEffect)
             {
-                foreach (var renderer in glow.GetComponentsInChildren<Renderer>())
+                foreach (var renderer in Frame.reaperModeEffect.GetComponentsInChildren<Renderer>())
                 {
-                    if (renderer.enabled)
+                    yield return renderer;
+                }
+            }
+        }
+
+        private static void SetHidden(List<Renderer> hidden, System.Func<IEnumerable<Renderer>> renderers, bool hide)
+        {
+            if (hide)
+            {
+                foreach (var renderer in renderers())
+                {
+                    if (renderer && renderer.enabled)
                     {
                         renderer.enabled = false;
                         hidden.Add(renderer);
                     }
                 }
             }
-            else if (!hide && hidden.Count > 0)
+            else if (hidden.Count > 0)
             {
                 foreach (var renderer in hidden)
                 {
