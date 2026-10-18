@@ -1,10 +1,10 @@
 # Rebalanced Crests
 
-Rebalanced Crests with several tweaks and some new mechanics.
+Rebalanced Crests with several tweaks and some new mechanics. 
 
 ## Description
 
-This mod is based on Holland's [Crest Reworks Series](https://www.youtube.com/playlist?list=PLOkGZTjTZ_Mlh9yaNjvVGT2tbgU-b32Kc).
+This mod is based on Holland's [Crest Reworks Series](https://www.youtube.com/playlist?list=PLOkGZTjTZ_Mlh9yaNjvVGT2tbgU-b32Kc) and is approved by him. We had a great time discussing further changes that go beyond what was discussed in the videos.
 
 It implements all the proposed changes as best as possible, while keeping everything configurable.
 
