@@ -11,7 +11,7 @@ It implements all the proposed changes as best as possible, while keeping everyt
 - **All crests:** dash, glide and double jump right after attacking
 - **Hunter:** faster pogo and run-slash, no Needle Strike pushback, upgraded crest keeps some focus when hit
 - **Reaper:** up-slash in front, faster run-slash, bigger Needle Strike, instant pogo, better Silk Steal, new Harvest Bind, second silk skill slot
-- **Wanderer:** faster run-slash, Critical Strike harp instead of random crits, optional single-swipe Needle Strike, Silk on every Needle Strike hit
+- **Wanderer:** faster run-slash, and two reworks to pick from: Critical Strike harp with a single-swipe Needle Strike, or a harp that turns the multi-hit Needle Strike into a critical swipe
 - **Beast:** a blue tool slot
 
 With a BepInEx configuration manager installed, press F1 in game to open the settings. There you can tweak the numbers or toggle the tweaks.
@@ -69,10 +69,25 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 | Change | Config | Vanilla |
 |---|---|---|
 | Run-slash has no windup | `Run-slash - Shorter windup`, `Run-slash - Windup seconds` (default 0) | 0.1111 s windup |
-| Critical Strike replaces random critical hits: once you have Needle Strike, nail hits fill the harp (HUD harp opens at the first hit, strings appear at half, full harp at the end); a full harp makes the next Needle Strike critical (3× damage) | `Critical hits - Critical Strike`, `Critical Strike - Hits to fill harp` (default 7) | 2 % crit chance per nail hit at 9+ Silk |
-| Needle Strike is a single powerful swipe (Hunter's normal slash, scaled up, with the damage of Hunter's Needle Strike) instead of a flurry of weak hits | `Needle Strike - Single powerful swipe`, `Needle Strike - Swipe damage multiplier` (default 1), `Needle Strike - Swipe size multiplier` (default 1.5) | multi-hit flurry |
-| Swipe mode FullHarpOnly: the normal multi-hit Needle Strike is used until the Critical Strike harp is full, then the swipe; the multi-hit strike gives Silk on every Nth hit and charges the harp once per strike that hits | `Needle Strike - Swipe mode` (default Always), `Needle Strike - Silk every Nth hit` (default 2), `Needle Strike - Harp charge per strike` (default 2) | only the first hit gives Silk; Needle Strike does not charge anything |
-| Every hit of the multi-hit Needle Strike gives Silk (only matters with the single swipe off) | `Needle Strike - Silk on every hit` | only the first hit gives Silk |
+
+`Rework - Mode` picks one of two reworks (or `Vanilla`). Each mode has its own settings.
+
+**CriticalStrike** (default): random critical hits are replaced by the Critical Strike harp, and Needle Strike is a single powerful swipe (Hunter's normal slash, scaled up, with the damage of Hunter's Needle Strike).
+
+| Change | Config | Vanilla |
+|---|---|---|
+| Nail hits fill the harp (HUD harp opens at the first hit, strings appear at half, full harp at the end); a full harp makes the next Needle Strike critical (3× damage) | `Critical Strike - Hits to fill harp` (default 7) | 2 % crit chance per nail hit at 9+ Silk |
+| Needle Strike is the single swipe | `Critical Strike - Swipe damage multiplier` (default 1), `Critical Strike - Swipe size multiplier` (default 1.5) | multi-hit flurry |
+
+**HarpNeedleStrike**: the multi-hit Needle Strike is used until the harp is full; then the next Needle Strike is the critical single swipe.
+
+| Change | Config | Vanilla |
+|---|---|---|
+| Nail hits fill the harp; a full harp turns the next Needle Strike into the critical swipe | `Harp Needle Strike - Hits to fill harp` (default 7) | 2 % crit chance per nail hit at 9+ Silk |
+| A multi-hit Needle Strike that hits adds strings to the harp | `Harp Needle Strike - Harp charge per strike` (default 2) | no harp |
+| Every Nth hit of the multi-hit Needle Strike gives Silk (1, 3, 5… with 2; at most 3 Silk per enemy from a full flurry) | `Harp Needle Strike - Silk every Nth hit` (default 2) | only the first hit per enemy gives Silk |
+| The full-harp swipe gives 1 Silk | `Harp Needle Strike - Swipe gives 1 Silk` | – |
+| Size and damage of the swipe | `Harp Needle Strike - Swipe damage multiplier` (default 1), `Harp Needle Strike - Swipe size multiplier` (default 1.5) | – |
 
 ### Beast
 

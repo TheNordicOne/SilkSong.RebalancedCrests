@@ -17,12 +17,23 @@ namespace RebalancedCrests.Core
             Enabled = config.Bind(crest.Name, key, true, description);
         }
 
+        /// <summary>
+        /// For tweaks that are switched by another setting (e.g. a mode) instead of their own toggle; they override
+        /// <see cref="IsEnabled"/>.
+        /// </summary>
+        protected Tweak(Crest crest)
+        {
+            Crest = crest;
+        }
+
         internal Crest Crest { get; }
 
         /// <summary>
         /// True while the tweak is enabled and its crest is equipped.
         /// </summary>
-        internal bool IsActive => Enabled.Value && Crest.IsEquipped;
+        internal bool IsActive => IsEnabled && Crest.IsEquipped;
+
+        internal virtual bool IsEnabled => Enabled.Value;
 
         internal ConfigEntry<bool> Enabled { get; }
 

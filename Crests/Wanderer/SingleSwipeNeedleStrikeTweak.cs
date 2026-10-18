@@ -8,7 +8,9 @@ using UnityEngine;
 namespace RebalancedCrests.Crests.Wanderer
 {
     /// <summary>
-    /// Wanderer's Needle Strike is a single, scaled-up copy of Hunter's normal slash instead of its multi-hit one.
+    /// The Needle Strike of the Wanderer rework modes (CriticalStrikeTweak.Mode): a single, scaled-up copy of Hunter's
+    /// normal slash instead of the multi-hit one. CriticalStrike mode always uses it; HarpNeedleStrike mode only while
+    /// the harp is full. Each mode has its own settings.
     /// - Nail Arts "Antic Type": the Wanderer crest check is disabled, so the FSM takes the Hunter path (Antic →
     ///   Lunge? → Slash Recoil? → Do Slash). Wanderer's lunge speed and chain are 0 like Hunter's, and its
     ///   chargeSlashRecoils is False, so there is no pushback.
@@ -22,11 +24,12 @@ namespace RebalancedCrests.Crests.Wanderer
     /// - "Get Charge Slash": Current Charge Slash is set to the swipe, so "Do Slash" activates it and "Cancel All"
     ///   deactivates it. An action added to "Do Slash" starts the slash (NailSlash.StartSlash).
     /// - HealthManager.TakeDamage scales the damage of its hits.
-    /// - Swipe mode FullHarpOnly: "Get Charge Slash" (before "Antic Type") decides per Needle Strike; the swipe is used
-    ///   only while the Critical Strike harp is full, otherwise the vanilla flurry runs. For the flurry, a
-    ///   HeroController.SilkGain prefix gives Silk on every Nth hit of the strike (instead of silkGeneration FirstHit),
-    ///   and a HeroController.NailHitEnemy postfix adds harp strings once per strike that hits an enemy. "Wanderer
-    ///   Attack" (the flurry) resets the per-strike counters.
+    /// - "Get Charge Slash" (before "Antic Type") decides per Needle Strike whether the swipe is used.
+    /// - HarpNeedleStrike mode, multi-hit Needle Strike: a HeroController.SilkGain prefix gives Silk on every Nth hit of
+    ///   the strike (instead of silkGeneration FirstHit, which gives 1 per enemy), and a HeroController.NailHitEnemy
+    ///   postfix adds harp strings once per strike that hits an enemy. "Wanderer Attack" resets these counters.
+    /// - HarpNeedleStrike mode, swipe: the SilkGain prefix lets it give at most 1 Silk per strike (or none). Its
+    ///   Hunter slash copy has silkGeneration Full, which in CriticalStrike mode gives 1 Silk per enemy hit.
     /// </summary>
     [HarmonyPatch]
     internal sealed class SingleSwipeNeedleStrikeTweak : Tweak
@@ -42,50 +45,62 @@ namespace RebalancedCrests.Crests.Wanderer
         private bool _useSwipe;
         private int _flurryHits;
         private bool _flurryCharged;
-
-        internal enum SwipeMode
-        {
-            Always,
-            FullHarpOnly,
-        }
+        private bool _swipeSilkGiven;
 
         internal SingleSwipeNeedleStrikeTweak(ConfigFile config)
-            : base(config, Crest.Wanderer, "Needle Strike - Single powerful swipe",
-                "Replace the multi-hit Needle Strike with a single big swing: Hunter's normal slash, scaled up. "
-                + "Vanilla: a flurry of weak hits.")
+            : base(Crest.Wanderer)
         {
-            DamageMultiplier = config.Bind(Crest.Name, "Needle Strike - Swipe damage multiplier", 1f,
-                new ConfigDescription("Damage multiplier of the single swipe. 1 = same damage as Hunter's Needle Strike.",
-                    new AcceptableValueRange<float>(0.5f, 3f)));
-            SizeMultiplier = config.Bind(Crest.Name, "Needle Strike - Swipe size multiplier", 1.5f,
-                new ConfigDescription("Size of the single swipe compared to Hunter's normal slash.",
-                    new AcceptableValueRange<float>(1f, 3f)));
-            Mode = config.Bind(Crest.Name, "Needle Strike - Swipe mode", SwipeMode.Always,
-                "Always: every Needle Strike is the single swipe. FullHarpOnly: the normal multi-hit Needle Strike is "
-                + "used unless the Critical Strike harp is full, then the swipe is used (needs 'Critical hits - "
-                + "Critical Strike').");
-            FlurrySilkEvery = config.Bind(Crest.Name, "Needle Strike - Silk every Nth hit", 2,
-                new ConfigDescription("FullHarpOnly mode: every Nth hit of the multi-hit Needle Strike gives Silk "
-                    + "(1 = every hit). Vanilla: only the first hit per enemy.",
+            CriticalStrikeDamage = BindDamage(config, "Critical Strike");
+            CriticalStrikeSize = BindSize(config, "Critical Strike");
+            HarpDamage = BindDamage(config, "Harp Needle Strike");
+            HarpSize = BindSize(config, "Harp Needle Strike");
+            FlurrySilkEvery = config.Bind(Crest.Name, "Harp Needle Strike - Silk every Nth hit", 2,
+                new ConfigDescription("Every Nth hit of the multi-hit Needle Strike gives Silk (1 = every hit). "
+                    + "Vanilla: only the first hit per enemy.",
                     new AcceptableValueRange<int>(1, 5)));
-            FlurryHarpStrings = config.Bind(Crest.Name, "Needle Strike - Harp charge per strike", 2,
-                new ConfigDescription("FullHarpOnly mode: harp strings added by a multi-hit Needle Strike that hits "
-                    + "an enemy.",
+            FlurryHarpStrings = config.Bind(Crest.Name, "Harp Needle Strike - Harp charge per strike", 2,
+                new ConfigDescription("Harp strings added by a multi-hit Needle Strike that hits an enemy.",
                     new AcceptableValueRange<int>(0, 50)));
+            SwipeGivesSilk = config.Bind(Crest.Name, "Harp Needle Strike - Swipe gives 1 Silk", true,
+                "The full-harp swipe gives 1 Silk when it hits. Off: it gives none.");
             _instance = this;
         }
 
-        private ConfigEntry<float> DamageMultiplier { get; }
+        private ConfigEntry<float> CriticalStrikeDamage { get; }
 
-        private ConfigEntry<float> SizeMultiplier { get; }
+        private ConfigEntry<float> CriticalStrikeSize { get; }
 
-        private ConfigEntry<SwipeMode> Mode { get; }
+        private ConfigEntry<float> HarpDamage { get; }
+
+        private ConfigEntry<float> HarpSize { get; }
 
         private ConfigEntry<int> FlurrySilkEvery { get; }
 
         private ConfigEntry<int> FlurryHarpStrings { get; }
 
-        private bool FullHarpOnly => IsActive && Mode.Value == SwipeMode.FullHarpOnly;
+        private ConfigEntry<bool> SwipeGivesSilk { get; }
+
+        private static CriticalStrikeTweak Harp => CriticalStrikeTweak.Instance;
+
+        internal override bool IsEnabled => Harp.IsEnabled;
+
+        private float DamageMultiplier => (Harp.IsHarpNeedleStrike ? HarpDamage : CriticalStrikeDamage).Value;
+
+        private float SizeMultiplier => (Harp.IsHarpNeedleStrike ? HarpSize : CriticalStrikeSize).Value;
+
+        private static ConfigEntry<float> BindDamage(ConfigFile config, string mode)
+        {
+            return config.Bind(Crest.Wanderer.Name, mode + " - Swipe damage multiplier", 1f,
+                new ConfigDescription("Damage multiplier of the single swipe. 1 = same damage as Hunter's Needle Strike.",
+                    new AcceptableValueRange<float>(0.5f, 3f)));
+        }
+
+        private static ConfigEntry<float> BindSize(ConfigFile config, string mode)
+        {
+            return config.Bind(Crest.Wanderer.Name, mode + " - Swipe size multiplier", 1.5f,
+                new ConfigDescription("Size of the single swipe compared to Hunter's normal slash.",
+                    new AcceptableValueRange<float>(1f, 3f)));
+        }
 
         internal override void Apply(HeroController hero)
         {
@@ -94,7 +109,6 @@ namespace RebalancedCrests.Crests.Wanderer
                 CreateSwipe(hero);
             }
 
-            _swipe.transform.localScale = Vector3.one * SizeMultiplier.Value;
             _flurry = WandererCrest.GetConfigGroup(hero).ChargeSlash;
 
             var fsm = hero.GetFsm("Nail Arts");
@@ -110,10 +124,10 @@ namespace RebalancedCrests.Crests.Wanderer
             var currentChargeSlash = fsm.FsmVariables.GetFsmGameObject("Current Charge Slash");
             fsm.GetState("Get Charge Slash").AddAction(new CallbackAction(this, _ =>
             {
-                var harp = CriticalStrikeTweak.Instance;
-                _useSwipe = IsActive && (Mode.Value == SwipeMode.Always || (harp.IsActive && harp.HarpFull));
+                _useSwipe = IsActive && (!Harp.IsHarpNeedleStrike || Harp.HarpFull);
                 if (_useSwipe)
                 {
+                    _swipe.transform.localScale = Vector3.one * SizeMultiplier;
                     currentChargeSlash.Value = _swipe;
                     Core.DebugLog.Tweak(this, "Needle Strike: single swipe");
                 }
@@ -123,6 +137,7 @@ namespace RebalancedCrests.Crests.Wanderer
             {
                 if (_useSwipe && currentChargeSlash.Value == _swipe)
                 {
+                    _swipeSilkGiven = false;
                     _swipeSlash.StartSlash();
                 }
             }));
@@ -175,15 +190,29 @@ namespace RebalancedCrests.Crests.Wanderer
 
         [HarmonyPatch(typeof(HeroController), nameof(HeroController.SilkGain), typeof(HitInstance))]
         [HarmonyPrefix]
-        private static void FlurrySilk(ref HitInstance hitInstance)
+        private static void HarpNeedleStrikeSilk(ref HitInstance hitInstance)
         {
             var tweak = _instance;
-            if (!tweak.FullHarpOnly || !tweak.IsFlurryHit(hitInstance))
+            if (!Harp.IsHarpNeedleStrike)
             {
                 return;
             }
 
-            var gives = tweak._flurryHits++ % tweak.FlurrySilkEvery.Value == 0;
+            bool gives;
+            if (tweak.IsFlurryHit(hitInstance))
+            {
+                gives = tweak._flurryHits++ % tweak.FlurrySilkEvery.Value == 0;
+            }
+            else if (tweak.IsSwipeHit(hitInstance))
+            {
+                gives = tweak.SwipeGivesSilk.Value && !tweak._swipeSilkGiven;
+                tweak._swipeSilkGiven |= gives;
+            }
+            else
+            {
+                return;
+            }
+
             hitInstance.SilkGeneration = gives ? HitSilkGeneration.Full : HitSilkGeneration.None;
         }
 
@@ -192,15 +221,14 @@ namespace RebalancedCrests.Crests.Wanderer
         private static void FlurryChargesHarp(HealthManager enemyHealth, HitInstance hitInstance)
         {
             var tweak = _instance;
-            var harp = CriticalStrikeTweak.Instance;
-            if (!tweak.FullHarpOnly || tweak._flurryCharged || !harp.IsActive || enemyHealth.DoNotGiveSilk
+            if (!Harp.IsHarpNeedleStrike || tweak._flurryCharged || enemyHealth.DoNotGiveSilk
                 || !tweak.IsFlurryHit(hitInstance))
             {
                 return;
             }
 
             tweak._flurryCharged = true;
-            harp.AddStrings(tweak.FlurryHarpStrings.Value);
+            Harp.AddStrings(tweak.FlurryHarpStrings.Value);
         }
 
         [HarmonyPatch(typeof(HeroAnimationController), nameof(HeroAnimationController.GetClip))]
@@ -222,7 +250,7 @@ namespace RebalancedCrests.Crests.Wanderer
         {
             if (_instance.IsActive && _instance.IsSwipeHit(hitInstance))
             {
-                hitInstance.DamageDealt = Mathf.RoundToInt(hitInstance.DamageDealt * _instance.DamageMultiplier.Value);
+                hitInstance.DamageDealt = Mathf.RoundToInt(hitInstance.DamageDealt * _instance.DamageMultiplier);
             }
         }
     }

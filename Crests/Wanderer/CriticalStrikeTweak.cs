@@ -6,9 +6,11 @@ using UnityEngine;
 namespace RebalancedCrests.Crests.Wanderer
 {
     /// <summary>
-    /// Critical Strike: replaces Wanderer's random critical hits (2 % per nail hit at 9+ Silk) with a harp that fills
-    /// with nail hits once Needle Strike is obtained. A full harp makes the next Needle Strike a critical hit on every
-    /// hit (vanilla crit: 3× damage, 1.5× knockback, Wanderer_Precision_strike effect).
+    /// Wanderer rework modes ('Rework - Mode'): CriticalStrike and HarpNeedleStrike both replace Wanderer's random
+    /// critical hits (2 % per nail hit at 9+ Silk) with a harp that fills with nail hits once Needle Strike is
+    /// obtained. A full harp makes the next Needle Strike a critical hit on every hit (vanilla crit: 3× damage, 1.5×
+    /// knockback, Wanderer_Precision_strike effect). The Needle Strike itself per mode: SingleSwipeNeedleStrikeTweak.
+    /// Each mode has its own harp size.
     /// - Hits are counted in HeroController.NailHitEnemy with the same conditions as Hunter's combo meter; Needle
     ///   Strike hits do not count.
     /// - IsWandererLucky drives both the random crit roll (DamageEnemies.DoDamage) and the vanilla harp on the HUD
@@ -29,18 +31,44 @@ namespace RebalancedCrests.Crests.Wanderer
         private bool _criticalNeedleStrike;
 
         internal CriticalStrikeTweak(ConfigFile config)
-            : base(config, Crest.Wanderer, "Critical hits - Critical Strike",
-                "Replace the random critical hits with Critical Strike: once you have Needle Strike, nail hits fill the "
-                + "harp (shown on the HUD when full) and a full harp makes your next Needle Strike a critical hit "
-                + "(3× damage). Vanilla: 2 % chance per nail hit while at 9 or more Silk.")
+            : base(Crest.Wanderer)
         {
-            HitsToFill = config.Bind(Crest.Name, "Critical Strike - Hits to fill harp", 7,
+            Mode = config.Bind(Crest.Name, "Rework - Mode", WandererMode.CriticalStrike,
+                "Vanilla: random critical hits (2 % chance per nail hit while at 9 or more Silk) and the multi-hit "
+                + "Needle Strike. "
+                + "CriticalStrike: Needle Strike is a single powerful swipe; nail hits fill the harp and a full harp "
+                + "makes the next swipe a critical hit (3× damage). Uses the 'Critical Strike - ...' settings. "
+                + "HarpNeedleStrike: the multi-hit Needle Strike is used until the harp is full; nail hits and "
+                + "Needle Strikes fill the harp, and a full harp turns the next Needle Strike into the critical "
+                + "swipe. Uses the 'Harp Needle Strike - ...' settings.");
+            CriticalStrikeHitsToFill = config.Bind(Crest.Name, "Critical Strike - Hits to fill harp", 7,
                 new ConfigDescription("Nail hits on enemies needed to fill the harp.",
+                    new AcceptableValueRange<int>(1, 50)));
+            HarpNeedleStrikeHitsToFill = config.Bind(Crest.Name, "Harp Needle Strike - Hits to fill harp", 7,
+                new ConfigDescription("Harp strings needed to fill the harp; each nail hit on an enemy adds one.",
                     new AcceptableValueRange<int>(1, 50)));
             _instance = this;
         }
 
-        private ConfigEntry<int> HitsToFill { get; }
+        internal enum WandererMode
+        {
+            Vanilla,
+            CriticalStrike,
+            HarpNeedleStrike,
+        }
+
+        internal ConfigEntry<WandererMode> Mode { get; }
+
+        private ConfigEntry<int> CriticalStrikeHitsToFill { get; }
+
+        private ConfigEntry<int> HarpNeedleStrikeHitsToFill { get; }
+
+        private ConfigEntry<int> HitsToFill =>
+            Mode.Value == WandererMode.HarpNeedleStrike ? HarpNeedleStrikeHitsToFill : CriticalStrikeHitsToFill;
+
+        internal override bool IsEnabled => Mode.Value != WandererMode.Vanilla;
+
+        internal bool IsHarpNeedleStrike => IsActive && Mode.Value == WandererMode.HarpNeedleStrike;
 
         internal static CriticalStrikeTweak Instance => _instance;
 
@@ -54,7 +82,7 @@ namespace RebalancedCrests.Crests.Wanderer
 
         internal override void Apply(HeroController hero)
         {
-            // Wanderer's own Needle Strike, and Hunter's when 'Needle Strike - Single powerful swipe' is on
+            // Wanderer's own multi-hit Needle Strike, and the single swipe
             foreach (var stateName in new[] { "Wanderer Attack", "Do Slash" })
             {
                 var state = hero.GetFsm("Nail Arts").GetState(stateName);
