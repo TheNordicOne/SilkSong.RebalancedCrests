@@ -10,7 +10,7 @@ It implements all the proposed changes as best as possible, while keeping everyt
 
 - **All crests:** dash, glide and double jump right after attacking
 - **Hunter:** faster pogo and run-slash, no Needle Strike pushback, upgraded crest keeps some focus when hit
-- **Reaper:** up-slash in front, faster run-slash, bigger Needle Strike, instant pogo, better Silk Steal, new Harvest Bind
+- **Reaper:** up-slash in front, faster run-slash, bigger Needle Strike, instant pogo, better Silk Steal, new Harvest Bind, second silk skill slot
 - **Wanderer:** faster run-slash, Critical Strike harp instead of random crits, optional single-swipe Needle Strike, Silk on every Needle Strike hit
 
 With a BepInEx configuration manager installed, press F1 in game to open the settings. There you can tweak the numbers or toggle the tweaks.
@@ -59,6 +59,7 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 | Silk Steal: Needle Strike drops more Silk fragments | `Silk Steal - More Needle Strike fragments`, `Silk Steal - Needle Strike fragments per hit` (default 6) | same as other hits |
 | Silk Steal is kept when taking damage; each hit shortens it instead | `Silk Steal - Kept on damage`, `Silk Steal - Seconds lost per hit` (default 1) | ends on damage |
 | Harvest Bind: Up + Bind is a quick bind (like Architect's Craft Bind) that starts Silk Steal without healing; Warding Bell and Injector Band apply | `Bind - Harvest Bind on Up`, `Harvest Bind - Silk cost` (default 4) | Up + Bind is a normal bind |
+| The Up tool slot holds a silk skill instead of a red tool; Up + skill uses it (a red tool equipped there is unequipped) | `Tool slots - Up slot holds a silk skill` | red tool slot |
 
 ### Wanderer
 
