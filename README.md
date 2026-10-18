@@ -4,7 +4,7 @@ Rebalanced Crests with several tweaks and some new mechanics.
 
 ## Description
 
-This mod is based on Hollands [Crest Reworks Series](https://www.youtube.com/playlist?list=PLOkGZTjTZ_Mlh9yaNjvVGT2tbgU-b32Kc).
+This mod is based on Holland's [Crest Reworks Series](https://www.youtube.com/playlist?list=PLOkGZTjTZ_Mlh9yaNjvVGT2tbgU-b32Kc).
 
 It implements all the proposed changes as best as possible, while keeping everything configurable.
 
@@ -13,7 +13,7 @@ It implements all the proposed changes as best as possible, while keeping everyt
 - **Reaper:** up-slash in front, faster run-slash, bigger Needle Strike, instant pogo, better Silk Steal, new Harvest Bind
 - **Wanderer:** faster run-slash, Critical Strike harp instead of random crits, optional single-swipe Needle Strike, Silk on every Needle Strike hit
 
-Press F1 in game to open the settings. There you can tweak the numbers or toggle the tweaks.
+With a BepInEx configuration manager installed, press F1 in game to open the settings. There you can tweak the numbers or toggle the tweaks.
 
 ## Installation instructions
 
@@ -29,7 +29,7 @@ Once you got it installed, download this mod and unpack the zip into
 
 ## Main features
 
-Based on Holland's "Fixing Silksong's ... Crest" video series. Every change can be toggled and tuned individually
+Every change can be toggled and tuned individually
 in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), with one section per crest. Settings are named `<Move> - <Change>`, so everything about one move sits together.
 
 ### All crests
@@ -71,4 +71,4 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 
 ## Requirements
 
-No other mods are required.
+No other mods are required. A configuration manager is optional for the in-game settings menu.
