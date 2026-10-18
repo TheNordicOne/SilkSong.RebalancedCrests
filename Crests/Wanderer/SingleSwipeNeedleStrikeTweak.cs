@@ -17,7 +17,8 @@ namespace RebalancedCrests.Crests.Wanderer
     ///   the hero animation and its clip triggers match Hunter's timing.
     /// - Charge Slash Basic has two hitboxes, "slash 01" (0–0.083 s) and "slash 02" (0.217–0.3 s), each 1.4× nail
     ///   damage. With 'Swipe hits once', DamageEnemies.DoDamage is skipped for "slash 02" and "slash 01" deals the
-    ///   damage of both. The second swing stays visible.
+    ///   damage of both. The second blade swing is hidden (SecondSwingHider) and its sound ("Audio Player Actor (1)",
+    ///   PlayRandomAudioEvent on enable) is skipped.
     /// - HealthManager.TakeDamage scales the damage of its hits.
     /// </summary>
     [HarmonyPatch]
@@ -30,6 +31,7 @@ namespace RebalancedCrests.Crests.Wanderer
         private GameObject _hunterChargeSlash;
         private DamageEnemies _firstHit;
         private DamageEnemies _secondHit;
+        private PlayRandomAudioEvent _secondSound;
 
         internal SingleSwipeNeedleStrikeTweak(ConfigFile config)
             : base(config, Crest.Wanderer, "Needle Strike - Single powerful swipe",
@@ -48,11 +50,18 @@ namespace RebalancedCrests.Crests.Wanderer
 
         private ConfigEntry<bool> HitsOnce { get; }
 
+        internal bool HitsOnceActive => IsActive && HitsOnce.Value;
+
         internal override void Apply(HeroController hero)
         {
             _hunterChargeSlash = hero.configs[0].ChargeSlash;
             _firstHit = _hunterChargeSlash.transform.Find("slash 01").GetComponent<DamageEnemies>();
             _secondHit = _hunterChargeSlash.transform.Find("slash 02").GetComponent<DamageEnemies>();
+            _secondSound = _hunterChargeSlash.transform.Find("Audio Player Actor (1)").GetComponent<PlayRandomAudioEvent>();
+            if (!_hunterChargeSlash.GetComponent<SecondSwingHider>())
+            {
+                _hunterChargeSlash.AddComponent<SecondSwingHider>().Tweak = this;
+            }
 
             var fsm = hero.GetFsm("Nail Arts");
             var anticType = fsm.GetState("Antic Type");
@@ -97,13 +106,20 @@ namespace RebalancedCrests.Crests.Wanderer
         [HarmonyPrefix]
         private static bool SkipSecondHit(DamageEnemies __instance, ref bool __result)
         {
-            if (__instance != _instance._secondHit || !_instance.IsActive || !_instance.HitsOnce.Value)
+            if (__instance != _instance._secondHit || !_instance.HitsOnceActive)
             {
                 return true;
             }
 
             __result = false;
             return false;
+        }
+
+        [HarmonyPatch(typeof(PlayRandomAudioEvent), "OnEnable")]
+        [HarmonyPrefix]
+        private static bool SkipSecondSound(PlayRandomAudioEvent __instance)
+        {
+            return __instance != _instance._secondSound || !_instance.HitsOnceActive;
         }
 
         [HarmonyPatch(typeof(HealthManager), "TakeDamage")]
@@ -116,7 +132,7 @@ namespace RebalancedCrests.Crests.Wanderer
             }
 
             var multiplier = _instance.DamageMultiplier.Value;
-            if (_instance.HitsOnce.Value && hitInstance.Source == _instance._firstHit.gameObject)
+            if (_instance.HitsOnceActive && hitInstance.Source == _instance._firstHit.gameObject)
             {
                 multiplier *= 2;
             }
