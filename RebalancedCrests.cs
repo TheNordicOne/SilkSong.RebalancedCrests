@@ -37,7 +37,6 @@ namespace RebalancedCrests
             _tweaks.Add(new NeedleStrikeSilkBundlesTweak(Config));
             _tweaks.Add(new BindEffectDurationTweak(Config));
             _tweaks.Add(new SilkStealTimerTweak(Config));
-            _tweaks.Add(new SilkStealHeroTimerTweak(Config));
             _tweaks.Add(new HarvestBindTweak(Config));
             _tweaks.Add(new UpSkillSlotTweak(Config));
 
