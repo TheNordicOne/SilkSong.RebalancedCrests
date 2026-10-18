@@ -8,6 +8,11 @@ This mod is based on Hollands [Crest Reworks Series](https://www.youtube.com/pla
 
 It implements all the proposed changes as best as possible, while keeping everything configurable.
 
+- **All crests:** dash, glide and double jump right after attacking
+- **Hunter:** faster pogo and run-slash, no Needle Strike pushback, upgraded crest keeps some focus when hit
+- **Reaper:** up-slash in front, faster run-slash, bigger Needle Strike, instant pogo, better Silk Steal, new Harvest Bind
+- **Wanderer:** faster run-slash, Critical Strike harp instead of random crits, optional single-swipe Needle Strike, Silk on every Needle Strike hit
+
 Press F1 in game to open the settings. There you can tweak the numbers or toggle the tweaks.
 
 ## Installation instructions
