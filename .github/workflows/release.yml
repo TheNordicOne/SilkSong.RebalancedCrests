@@ -39,7 +39,7 @@ jobs:
           mkdir -p dist/thunderstore/plugins
           cp bin/Release/netstandard2.1/RebalancedCrests.dll dist/thunderstore/plugins/
           cp README.md icon.png dist/thunderstore/
-          jq -n --arg version "${{ steps.version.outputs.version }}" '{name: "RebalancedCrests", version_number: $version, website_url: "https://github.com/TheNordicOne/Silksong.RebalancedCrests", description: "Rebalanced Crests with several tweaks and some new mechanics.", dependencies: ["silksong_modding-BepInExPack_Silksong-1.0.3"]}' > dist/thunderstore/manifest.json
+          jq -n --arg version "${{ steps.version.outputs.version }}" '{name: "RebalancedCrests", version_number: $version, website_url: "https://github.com/TheNordicOne/Silksong.RebalancedCrests", description: "Rebalanced Crests with several tweaks and some new mechanics.", dependencies: ["silksong_modding-BepInExPack_Silksong-1.0.3", "silksong_modding-ModMenu-0.8.0"]}' > dist/thunderstore/manifest.json
           cd dist/thunderstore && zip -r "../RebalancedCrests-${{ steps.version.outputs.version }}-thunderstore.zip" .
 
       - name: Package for Nexus

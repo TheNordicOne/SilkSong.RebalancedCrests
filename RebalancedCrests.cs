@@ -9,11 +9,15 @@ using RebalancedCrests.Crests.Reaper;
 using RebalancedCrests.Crests.Wanderer;
 using RebalancedCrests.Crests.Shared;
 using RebalancedCrests.Diagnostics;
+using Silksong.ModMenu;
+using Silksong.ModMenu.Plugin;
+using Silksong.ModMenu.Screens;
 
 namespace RebalancedCrests
 {
     [BepInPlugin("com.thenordicone.rebalancedcrests", "Rebalanced Crests", "1.2.0")]
-    public class RebalancedCrests : BaseUnityPlugin
+    [BepInDependency(ModMenuPlugin.Id)]
+    public class RebalancedCrests : BaseUnityPlugin, IModMenuCustomMenu
     {
         private readonly List<Tweak> _tweaks = new List<Tweak>();
 
@@ -58,6 +62,12 @@ namespace RebalancedCrests
                 Logger.LogInfo($"Patched {method.DeclaringType?.Name}.{method.Name}");
             }
             Logger.LogInfo("loaded");
+        }
+
+        public AbstractMenuScreen BuildCustomMenu()
+        {
+            var resetKey = GetComponent<SettingResetKey>() ?? gameObject.AddComponent<SettingResetKey>();
+            return new ModMenuConfigFactory(resetKey).BuildMenu(Info.Metadata.Name, Config);
         }
 
         private void ApplyTweaks(HeroController hero)
