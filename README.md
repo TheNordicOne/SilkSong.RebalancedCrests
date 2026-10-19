@@ -61,7 +61,7 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 | Silk Steal is kept when taking damage, so it always lasts its full duration | `Silk Steal - Kept on damage` | ends on damage |
 | Silk Steal lasts a configurable time | `Silk Steal - Custom duration`, `Silk Steal - Duration seconds` (default 10) | 10 seconds |
 | The glow around Hornet fades in and out during the last seconds of Silk Steal | `Silk Steal - Blink on Hornet before ending`, `Silk Steal - Blink seconds` (default 3), `Silk Steal - Blink speed` (default 0.15) | glow stays |
-| Harvest Bind: Up + Bind is a quick bind (like Architect's Craft Bind) that starts Silk Steal without healing; Warding Bell and Injector Band apply | `Bind - Harvest Bind on Up`, `Harvest Bind - Silk cost` (default 4) | Up + Bind is a normal bind |
+| Harvest Bind: Up + Bind is a quick bind (like Architect's Craft Bind) that starts Silk Steal without healing; Warding Bell and Injector Band apply | `Bind - Harvest Bind on Up`, `Bind - Harvest Bind Silk cost` (default 4) | Up + Bind is a normal bind |
 | The Up tool slot holds a silk skill instead of a red tool; Up + skill uses it (a red tool equipped there is unequipped) | `Tool slots - Up slot holds a silk skill` | red tool slot |
 | The Memory Locket lock moves to the Up silk skill slot and the Down red tool slot is free, so the number of lockets stays the same (a locket already used on the Down slot unlocks the Up slot) | `Tool slots - Swap locket to the Up skill slot` | Down slot needs the locket |
 

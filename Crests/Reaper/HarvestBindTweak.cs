@@ -24,10 +24,10 @@ namespace RebalancedCrests.Crests.Reaper
 
         internal HarvestBindTweak(ConfigFile config)
             : base(config, Crest.Reaper, "Bind - Harvest Bind on Up",
-                "Up + Bind does a Harvest Bind: a quick bind (like Architect's Craft Bind) that starts Silk Steal "
-                + "without healing. Warding Bell and Injector Band apply. Vanilla: Up + Bind is a normal bind.")
+                "Up + Bind does a Harvest Bind: a quick bind that starts Silk Steal without healing. "
+                + "It works like Architect's Craft Bind. Warding Bell and Injector Band apply. Vanilla: Up + Bind is a normal bind.")
         {
-            SilkCost = config.Bind(Crest.Name, "Harvest Bind - Silk cost", 4,
+            SilkCost = config.Bind(Crest.Name, "Bind - Harvest Bind Silk cost", 4,
                 new ConfigDescription("Silk spent on a Harvest Bind. Vanilla bind: 9.",
                     new AcceptableValueRange<int>(0, 9)));
         }
