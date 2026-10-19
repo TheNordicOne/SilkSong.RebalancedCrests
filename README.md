@@ -98,4 +98,4 @@ in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), wit
 
 ## Requirements
 
-No other mods are required. A configuration manager is optional for the in-game settings menu.
+[ModMenu](https://thunderstore.io/c/hollow-knight-silksong/p/silksong_modding/ModMenu/) is required; it provides the in-game settings menu. A mod manager installs it (and its dependencies) automatically. A BepInEx configuration manager is optional (F1).
