@@ -42,7 +42,7 @@ namespace RebalancedCrests.Crests.Reaper
 
         private ConfigEntry<bool> SwapLocket { get; }
 
-        private bool Swaps => Enabled.Value && SwapLocket.Value;
+        private bool Swaps => IsEnabled && SwapLocket.Value;
 
         internal override void Apply(HeroController hero)
         {
@@ -54,7 +54,7 @@ namespace RebalancedCrests.Crests.Reaper
 
             var slots = crest.slots;
             var type = Override(crest, "UpSlotType", () => slots[UpSlot].Type, value => slots[UpSlot].Type = value);
-            type.Apply(Enabled.Value, ToolItemType.Skill);
+            type.Apply(IsEnabled, ToolItemType.Skill);
             Override(crest, "UpSlotLocked", () => slots[UpSlot].IsLocked, value => slots[UpSlot].IsLocked = value)
                 .Apply(Swaps, true);
             Override(crest, "DownSlotLocked", () => slots[DownSlot].IsLocked, value => slots[DownSlot].IsLocked = value)

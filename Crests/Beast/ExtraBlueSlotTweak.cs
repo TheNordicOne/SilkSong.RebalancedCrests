@@ -49,7 +49,7 @@ namespace RebalancedCrests.Crests.Beast
             }
 
             var slots = Override(crest, nameof(crest.slots), () => crest.slots, value => crest.slots = value);
-            slots.Apply(Enabled.Value, Placement.Value == SlotPlacement.AboveUpSlot
+            slots.Apply(IsEnabled, Placement.Value == SlotPlacement.AboveUpSlot
                 ? WithExtraSlot(slots.Vanilla)
                 : WithYellowReplaced(slots.Vanilla));
             UnequipMismatchedTools(crest.slots);

@@ -26,7 +26,7 @@ namespace RebalancedCrests.Crests.Hunter
         {
             var config = HunterCrest.GetConfig(hero);
             Override(config, nameof(config.downspikeAnticTime), () => config.downspikeAnticTime, value => config.downspikeAnticTime = value)
-                .Apply(Enabled.Value, _windupSeconds.Value);
+                .Apply(IsEnabled, _windupSeconds.Value);
         }
     }
 }

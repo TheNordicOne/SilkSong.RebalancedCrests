@@ -24,7 +24,7 @@ namespace RebalancedCrests.Crests.Reaper
         {
             var chargeSlash = ReaperCrest.GetConfigGroup(hero).ChargeSlash.transform;
             var localScale = Override(chargeSlash, nameof(chargeSlash.localScale), () => chargeSlash.localScale, value => chargeSlash.localScale = value);
-            localScale.Apply(Enabled.Value, localScale.Vanilla * _scale.Value);
+            localScale.Apply(IsEnabled, localScale.Vanilla * _scale.Value);
         }
     }
 }

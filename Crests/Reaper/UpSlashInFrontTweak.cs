@@ -21,7 +21,7 @@ namespace RebalancedCrests.Crests.Reaper
         {
             var upSlash = ReaperCrest.GetConfigGroup(hero).UpSlash;
             var scale = Override(upSlash, nameof(upSlash.scale), () => upSlash.scale, value => upSlash.scale = value);
-            scale.Apply(Enabled.Value, Vector3.Scale(scale.Vanilla, new Vector3(1f, -1f, 1f)));
+            scale.Apply(IsEnabled, Vector3.Scale(scale.Vanilla, new Vector3(1f, -1f, 1f)));
         }
     }
 }

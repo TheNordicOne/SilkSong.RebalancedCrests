@@ -67,7 +67,7 @@ namespace RebalancedCrests.Crests.Wanderer
         private ConfigEntry<int> HitsToFill =>
             Mode.Value == WandererMode.HarpNeedleStrike ? HarpNeedleStrikeHitsToFill : CriticalStrikeHitsToFill;
 
-        internal override bool IsEnabled => Mode.Value != WandererMode.Vanilla;
+        protected override bool IsOwnEnabled => Mode.Value != WandererMode.Vanilla;
 
         internal bool IsHarpNeedleStrike => IsActive && Mode.Value == WandererMode.HarpNeedleStrike;
 

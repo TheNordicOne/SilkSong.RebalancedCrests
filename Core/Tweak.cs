@@ -19,7 +19,7 @@ namespace RebalancedCrests.Core
 
         /// <summary>
         /// For tweaks that are switched by another setting (e.g. a mode) instead of their own toggle; they override
-        /// <see cref="IsEnabled"/>.
+        /// <see cref="IsOwnEnabled"/>.
         /// </summary>
         protected Tweak(Crest crest)
         {
@@ -33,7 +33,23 @@ namespace RebalancedCrests.Core
         /// </summary>
         internal bool IsActive => IsEnabled && Crest.IsEquipped;
 
-        internal virtual bool IsEnabled => Enabled.Value;
+        /// <summary>
+        /// True while the tweak's own setting is on and 'Mod - Enable tweaks' is on.
+        /// </summary>
+        internal bool IsEnabled => AllTweaks.Value && IsOwnEnabled;
+
+        protected virtual bool IsOwnEnabled => Enabled.Value;
+
+        /// <summary>
+        /// The General master switch; off disables every tweak.
+        /// </summary>
+        internal static ConfigEntry<bool> AllTweaks { get; private set; }
+
+        internal static void BindGeneral(ConfigFile config)
+        {
+            AllTweaks = config.Bind("General", "Mod - Enable tweaks", true,
+                "Turn every tweak on or off at once. Off: all crests play like vanilla.");
+        }
 
         internal ConfigEntry<bool> Enabled { get; }
 

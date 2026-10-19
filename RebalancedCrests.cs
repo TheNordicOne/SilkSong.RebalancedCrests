@@ -23,6 +23,7 @@ namespace RebalancedCrests
 
         private void Awake()
         {
+            Tweak.BindGeneral(Config);
             foreach (var crest in Crest.All)
             {
                 _tweaks.Add(new MovementAfterAttackTweak(Config, crest));

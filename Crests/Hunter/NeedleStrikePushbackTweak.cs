@@ -20,7 +20,7 @@ namespace RebalancedCrests.Crests.Hunter
         {
             var config = HunterCrest.GetConfig(hero);
             Override(config, nameof(config.chargeSlashRecoils), () => config.chargeSlashRecoils, value => config.chargeSlashRecoils = value)
-                .Apply(Enabled.Value, false);
+                .Apply(IsEnabled, false);
         }
     }
 }

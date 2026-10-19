@@ -62,7 +62,7 @@ namespace RebalancedCrests.Crests.Hunter
 
         private static void OnHeroDamaged(HeroController hero)
         {
-            if (_instance == null || !_instance.Enabled.Value)
+            if (_instance == null || !_instance.IsEnabled)
             {
                 hero.ResetHunterUpgCrestState();
                 return;

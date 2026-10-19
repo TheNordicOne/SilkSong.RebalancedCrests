@@ -38,7 +38,7 @@ namespace RebalancedCrests.Crests.Reaper
             var config = group.Config;
             var downSlash = group.ActiveRoot.transform.Find(DownSlashObject).gameObject;
 
-            var enabled = Enabled.Value;
+            var enabled = IsEnabled;
             Override(config, nameof(config.downSlashType), () => config.downSlashType, value => config.downSlashType = value)
                 .Apply(enabled, HeroControllerConfig.DownSlashTypes.Slash);
             Override(group, nameof(group.DownSlashObject), () => group.DownSlashObject, value => group.DownSlashObject = value)

@@ -82,7 +82,7 @@ namespace RebalancedCrests.Crests.Wanderer
 
         private static CriticalStrikeTweak Harp => CriticalStrikeTweak.Instance;
 
-        internal override bool IsEnabled => Harp.IsEnabled;
+        protected override bool IsOwnEnabled => Harp.IsEnabled;
 
         private float DamageMultiplier => (Harp.IsHarpNeedleStrike ? HarpDamage : CriticalStrikeDamage).Value;
 
