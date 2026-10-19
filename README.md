@@ -30,8 +30,8 @@ Once you got it installed, download this mod and unpack the zip into
 
 ## Main features
 
-Every change can be toggled and tuned individually
-in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), with one section per crest. `General` → `Mod - Enable tweaks` turns all of them off at once. Settings are named `<Move> - <Change>`, so everything about one move sits together.
+Every change can be toggled and tuned individually, in the in-game menu or in the config file
+(`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), with one section per crest. `General` → `Mod - Enable tweaks` turns all of them off at once. Settings are named `<Move> - <Change>`, so everything about one move sits together.
 
 ### All crests
 
