@@ -14,13 +14,13 @@ It implements all the proposed changes as best as possible, while keeping everyt
 - **Wanderer:** faster run-slash, and two reworks to pick from: Critical Strike harp with a single-swipe Needle Strike, or a harp that turns the multi-hit Needle Strike into a critical swipe
 - **Beast:** a blue tool slot
 
-With a BepInEx configuration manager installed, press F1 in game to open the settings. There you can tweak the numbers or toggle the tweaks.
+All settings are in the game's menu under **Options → Mods → Rebalanced Crests** (from the main menu or the pause menu), with one page per crest and move. Select a setting and press R / Backspace (controller: X / Square) to reset it, or use "Reset to default" at the bottom of a page to reset the whole page. With a BepInEx configuration manager installed, F1 opens the same settings.
 
 ## Installation instructions
 
 The easiest way is to install it from Thunderstore with a mod manager like r2modman or Gale.
 
-For a manual install you will need to have the BepInEx mod loader installed. Check out
+For a manual install you will need to have the BepInEx mod loader and [ModMenu](https://thunderstore.io/c/hollow-knight-silksong/p/silksong_modding/ModMenu/) (with its dependencies) installed. Check out
 the [installation instructions on the official website](https://docs.bepinex.dev/articles/user_guide/installation/index.html).
 Once you got it installed, download this mod and unpack the zip into
 
@@ -31,7 +31,7 @@ Once you got it installed, download this mod and unpack the zip into
 ## Main features
 
 Every change can be toggled and tuned individually
-in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), with one section per crest. Settings are named `<Move> - <Change>`, so everything about one move sits together.
+in the config file (`BepInEx/config/com.thenordicone.rebalancedcrests.cfg`), with one section per crest. `General` → `Mod - Enable tweaks` turns all of them off at once. Settings are named `<Move> - <Change>`, so everything about one move sits together.
 
 ### All crests
 
