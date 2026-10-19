@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using BepInEx.Configuration;
 using Silksong.ModMenu.Elements;
 using Silksong.ModMenu.Models;
@@ -185,6 +186,9 @@ namespace RebalancedCrests.Core
                     return on ? "On" : "Off";
                 case float number:
                     return number.ToString("0.###", CultureInfo.InvariantCulture);
+                case Enum choice:
+                    // Same spelling as ModMenu's choice element ("CriticalStrike" -> "Critical Strike")
+                    return Regex.Replace(choice.ToString(), "(?<=[a-z])(?=[A-Z])", " ");
                 default:
                     return value.ToString();
             }
