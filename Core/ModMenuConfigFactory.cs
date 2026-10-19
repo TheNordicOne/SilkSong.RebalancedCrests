@@ -41,51 +41,58 @@ namespace RebalancedCrests.Core
             var entries = config.Select(pair => pair.Value).ToList();
             foreach (var section in entries.GroupBy(entry => entry.Definition.Section))
             {
-                var screen = BuildSectionScreen(config, section.Key, section.ToList());
+                var screen = BuildSectionScreen(section.Key, section.ToList());
                 root.Add(new TextButton(section.Key) { OnSubmit = () => MenuScreenNavigation.Show(screen) });
             }
 
-            root.Add(ResetButton(config, entries));
             return root.Build();
         }
 
-        private AbstractMenuScreen BuildSectionScreen(ConfigFile config, string section, List<ConfigEntryBase> entries)
+        private AbstractMenuScreen BuildSectionScreen(string section, List<ConfigEntryBase> entries)
         {
             var builder = new PaginatedMenuScreenBuilder(section);
             var moves = entries.GroupBy(entry => Move(entry.Definition.Key)).ToList();
             var singleMove = moves.Count(move => move.Key != null) == 1;
+            var direct = new List<ConfigEntryBase>();
             foreach (var move in moves)
             {
                 if (move.Key == null || singleMove)
                 {
                     builder.AddRange(BuildElements(move));
+                    direct.AddRange(move);
                     continue;
                 }
 
                 var moveScreen = new PaginatedMenuScreenBuilder(move.Key);
                 moveScreen.AddRange(BuildElements(move));
-                moveScreen.Add(ResetButton(config, move.ToList()));
+                moveScreen.Add(ResetButton(move.ToList()));
                 var screen = moveScreen.Build();
                 builder.Add(new TextButton(move.Key) { OnSubmit = () => MenuScreenNavigation.Show(screen) });
             }
 
-            builder.Add(ResetButton(config, entries));
+            if (direct.Count > 0)
+            {
+                builder.Add(ResetButton(direct));
+            }
+
             return builder.Build();
         }
 
         /// <summary>
-        /// Resets the settings of a page (and its sub-pages) to their defaults. Saving is paused so the file is
-        /// written once; the elements follow through SettingChanged.
+        /// Resets the settings shown on a page to their defaults; pages that only list sub-pages have none. The
+        /// preset is skipped, because resetting it would apply the Default preset to every setting. Saving is
+        /// paused so the file is written once; the elements follow through SettingChanged.
         /// </summary>
-        private static TextButton ResetButton(ConfigFile config, List<ConfigEntryBase> entries)
+        private static TextButton ResetButton(List<ConfigEntryBase> entries)
         {
+            var config = entries[0].ConfigFile;
             return new TextButton(ResetLabel, SettingResetKey.Hint)
             {
                 OnSubmit = () =>
                 {
                     var save = config.SaveOnConfigSet;
                     config.SaveOnConfigSet = false;
-                    foreach (var entry in entries)
+                    foreach (var entry in entries.Where(entry => entry.SettingType != typeof(Preset)))
                     {
                         entry.BoxedValue = entry.DefaultValue;
                     }

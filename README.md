@@ -14,7 +14,7 @@ It implements all the proposed changes as best as possible, while keeping everyt
 - **Wanderer:** faster run-slash, and two reworks to pick from: Critical Strike harp with a single-swipe Needle Strike, or a harp that turns the multi-hit Needle Strike into a critical swipe
 - **Beast:** a blue tool slot
 
-All settings are in the game's menu under **Options → Mods → Rebalanced Crests** (from the main menu or the pause menu), with one page per crest and move. Select a setting and press R / Backspace (controller: X / Square) to reset it, or use "Reset to default" at the bottom of a page to reset the whole page. With a BepInEx configuration manager installed, F1 opens the same settings.
+All settings are in the game's menu under **Options → Mods → Rebalanced Crests** (from the main menu or the pause menu), with one page per crest and move. Select a setting and press R / Backspace (controller: X / Square) to reset it, or use "Reset to default" at the bottom of a page of settings to reset that page. Under General, the preset `Default` sets everything to the recommended values; changing any setting switches to `Custom`, and switching back to `Custom` restores your own values. With a BepInEx configuration manager installed, F1 opens the same settings.
 
 ## Installation instructions
 
