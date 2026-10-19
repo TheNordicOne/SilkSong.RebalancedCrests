@@ -6,7 +6,7 @@ namespace RebalancedCrests.Crests.Reaper
 {
     /// <summary>
     /// Enlarges Reaper's needle strike (Attacks/Charge Slash Scythe, vanilla localScale (1.3, 1.3, 1)) including its
-    /// three hitboxes. The object is inactive at rest; KeepWorldPosition captures the scale again on every enable.
+    /// three hitboxes. The object is inactive at rest. KeepWorldPosition captures the scale again on every enable.
     /// </summary>
     internal sealed class NeedleStrikeRangeTweak : Tweak
     {

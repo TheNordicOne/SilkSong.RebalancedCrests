@@ -5,7 +5,7 @@ namespace RebalancedCrests.Crests.Hunter
 {
     /// <summary>
     /// Shortens the windup (antic) of Hunter's down attack before its hitbox becomes active.
-    /// Vanilla waits downspikeAnticTime (0.1 s); with 0 the hitbox starts in the frame the attack is pressed,
+    /// Vanilla waits downspikeAnticTime (0.1 s). With 0 the hitbox starts in the frame the attack is pressed,
     /// because HeroController.Update checks the antic timer after handling input.
     /// </summary>
     internal sealed class PogoWindupTweak : Tweak

@@ -12,7 +12,7 @@ namespace RebalancedCrests.Crests.Reaper
     /// (RelinquishControlNotVelocity until ~0.5 s) and the forced (30, -30) diagonal movement. The attack keeps
     /// Reaper's attack duration and cooldown, its hitbox object (Attacks/Scythe/DownSlash New, active for
     /// 0.1667 s) and the default pogo bounce. Vanilla, the bounce comes from the Crest Attacks FSM (Dealt Damage
-    /// Response → ATTACK LANDED); on the Slash path a HeroDownAttack component does that, as on Wanderer's down slash,
+    /// Response → ATTACK LANDED). On the Slash path a HeroDownAttack component does that, as on Wanderer's down slash,
     /// so one is added to the object while the tweak is enabled.
     /// </summary>
     [HarmonyPatch]
@@ -77,7 +77,7 @@ namespace RebalancedCrests.Crests.Reaper
 
         /// <summary>
         /// Slash-type down attacks play the hero clip "DownSlash", which neither the Scythe library nor the base
-        /// library has; Reaper's own down slash body clip is used instead.
+        /// library has. Reaper's own down slash body clip is used instead.
         /// </summary>
         [HarmonyPatch(typeof(HeroAnimationController), "Play")]
         [HarmonyPrefix]

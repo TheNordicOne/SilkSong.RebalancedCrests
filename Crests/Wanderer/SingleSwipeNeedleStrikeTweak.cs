@@ -9,7 +9,7 @@ namespace RebalancedCrests.Crests.Wanderer
 {
     /// <summary>
     /// The Needle Strike of the Wanderer rework modes (CriticalStrikeTweak.Mode): a single, scaled-up copy of Hunter's
-    /// normal slash instead of the multi-hit one. CriticalStrike mode always uses it; HarpNeedleStrike mode only while
+    /// normal slash instead of the multi-hit one. CriticalStrike mode always uses it, HarpNeedleStrike mode only while
     /// the harp is full. Each mode has its own settings.
     /// - Nail Arts "Antic Type": the Wanderer crest check is disabled, so the FSM takes the Hunter path (Antic →
     ///   Lunge? → Slash Recoil? → Do Slash). Wanderer's lunge speed and chain are 0 like Hunter's, and its

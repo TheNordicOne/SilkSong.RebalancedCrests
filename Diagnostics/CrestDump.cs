@@ -33,7 +33,7 @@ namespace RebalancedCrests.Diagnostics
         private const int MaxFormatDepth = 4;
         private const float SampleStep = 1f / 60f;
 
-        // irrelevant to gameplay mechanics; they used up the reference cap
+        // irrelevant to gameplay mechanics. They used up the reference cap
         private static readonly HashSet<string> IgnoredAssetTypes = new HashSet<string>
         {
             "VibrationDataAsset", "PS5VibrationData", "GamepadVibration", "RandomAudioClipTable", "MusicCue",

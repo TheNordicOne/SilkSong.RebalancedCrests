@@ -10,7 +10,7 @@ namespace RebalancedCrests.Crests.Hunter
 {
     /// <summary>
     /// Hunter_v2/v3 lose a fixed amount of focus (combo meter hits) per hit taken instead of all of it.
-    /// Vanilla calls ResetHunterUpgCrestState() from HeroController.TakeDamage and DoSpecialDamage; those two calls
+    /// Vanilla calls ResetHunterUpgCrestState() from HeroController.TakeDamage and DoSpecialDamage. Those two calls
     /// are redirected. Every other reset (death, crest/tool changes, respawn, maggots) stays a full reset.
     /// </summary>
     [HarmonyPatch]

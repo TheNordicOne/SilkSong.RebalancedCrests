@@ -11,7 +11,7 @@ namespace RebalancedCrests.Crests.Reaper
     /// <summary>
     /// Silk Steal (Reaper bind effect, reaper mode) is no longer cancelled by taking damage, so it always lasts its full
     /// duration (Gameplay.ReaperModeDuration, 10 s). Vanilla: HeroController.TakeDamage calls ResetReaperCrestState()
-    /// on any damage; that single call is redirected.
+    /// on any damage. That single call is redirected.
     /// </summary>
     [HarmonyPatch]
     internal sealed class BindEffectDurationTweak : Tweak

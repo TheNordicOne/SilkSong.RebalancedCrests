@@ -6,7 +6,7 @@ namespace RebalancedCrests.Crests.Reaper
 {
     /// <summary>
     /// Changes how long Silk Steal (reaper mode) lasts. HeroController.BindCompleted starts it with
-    /// ReaperModeDurationLeft = Gameplay.ReaperModeDuration (10 s); a postfix sets the configured duration instead.
+    /// ReaperModeDurationLeft = Gameplay.ReaperModeDuration (10 s). A postfix sets the configured duration instead.
     /// Harvest Bind also starts Silk Steal through BindCompleted.
     /// </summary>
     [HarmonyPatch]

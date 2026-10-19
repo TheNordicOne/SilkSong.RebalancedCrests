@@ -6,7 +6,7 @@ using UnityEngine;
 namespace RebalancedCrests.Crests.Beast
 {
     /// <summary>
-    /// Gives the Beast crest (Warrior) a blue tool slot. ToolCrest.slots is replaced by a modified copy;
+    /// Gives the Beast crest (Warrior) a blue tool slot. ToolCrest.slots is replaced by a modified copy.
     /// InventoryToolCrest spawns its slot objects from that array (per type, positioned by SlotInfo.Position, linked
     /// by the Nav indices).
     /// - Replace yellow slot: the left yellow slot (index 3) becomes blue and keeps its vanilla lock.

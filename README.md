@@ -14,7 +14,7 @@ It implements all the proposed changes as best as possible, while keeping everyt
 - **Wanderer:** faster run-slash, and two reworks to pick from: Critical Strike harp with a single-swipe Needle Strike, or a harp that turns the multi-hit Needle Strike into a critical swipe
 - **Beast:** a blue tool slot
 
-All settings are in the game's menu under **Options → Mods → Rebalanced Crests** (from the main menu or the pause menu), with one page per crest and move. Select a setting and press R / Backspace (controller: X / Square) to reset it, or use "Reset to default" at the bottom of a page of settings to reset that page. Under General, the preset `Default` sets everything to the recommended values; changing any setting switches to `Custom`, and switching back to `Custom` restores your own values. With a BepInEx configuration manager installed, F1 opens the same settings.
+All settings are in the game's menu under **Options → Mods → Rebalanced Crests** (from the main menu or the pause menu), with one page per crest and move. Select a setting and press R / Backspace (controller: X / Square) to reset it, or use "Reset to default" at the bottom of a page of settings to reset that page. Under General, the preset `Default` sets everything to the recommended values. Changing any setting switches to `Custom`, and switching back to `Custom` restores your own values. With a BepInEx configuration manager installed, F1 opens the same settings.
 
 ## Installation instructions
 
@@ -55,14 +55,14 @@ Every change can be toggled and tuned individually, in the in-game menu or in th
 | Up-slash hits in front of Hornet | `Up-slash - In front of Hornet` | mostly behind her |
 | Run-slash has no windup | `Run-slash - Shorter windup`, `Run-slash - Windup seconds` (default 0) | 0.125 s windup |
 | Bigger Needle Strike | `Needle Strike - Bigger`, `Needle Strike - Size multiplier` (default 1.25) | 1 |
-| Down-slash (pogo) hits instantly, keeps control of Hornet and no longer pulls her diagonally; keeps its slow attack speed | `Down-slash - Instant, keeps control` | 0.1667 s windup, ~0.5 s without control |
+| Down-slash (pogo) hits instantly, keeps control of Hornet and no longer pulls her diagonally. It keeps its slow attack speed | `Down-slash - Instant, keeps control` | 0.1667 s windup, ~0.5 s without control |
 | Silk Steal (bind effect): fixed Silk fragments per hit | `Silk Steal - Fixed fragments per hit`, `Silk Steal - Fragments per hit` (default 2) | random 1-3 (enemies that always drop 1 stay unchanged) |
 | Silk Steal: Needle Strike drops more Silk fragments | `Silk Steal - More Needle Strike fragments`, `Silk Steal - Needle Strike fragments per hit` (default 6) | same as other hits |
 | Silk Steal is kept when taking damage, so it always lasts its full duration | `Silk Steal - Kept on damage` | ends on damage |
 | Silk Steal lasts a configurable time | `Silk Steal - Custom duration`, `Silk Steal - Duration seconds` (default 10) | 10 seconds |
 | The glow around Hornet fades in and out during the last seconds of Silk Steal | `Silk Steal - Blink on Hornet before ending`, `Silk Steal - Blink seconds` (default 3), `Silk Steal - Blink speed` (default 0.15) | glow stays |
-| Harvest Bind: Up + Bind is a quick bind (like Architect's Craft Bind) that starts Silk Steal without healing; Warding Bell and Injector Band apply | `Bind - Harvest Bind on Up`, `Bind - Harvest Bind Silk cost` (default 4) | Up + Bind is a normal bind |
-| The Up tool slot holds a silk skill instead of a red tool; Up + skill uses it (a red tool equipped there is unequipped) | `Tool slots - Up slot holds a silk skill` | red tool slot |
+| Harvest Bind: Up + Bind is a quick bind (like Architect's Craft Bind) that starts Silk Steal without healing. Warding Bell and Injector Band apply | `Bind - Harvest Bind on Up`, `Bind - Harvest Bind Silk cost` (default 4) | Up + Bind is a normal bind |
+| The Up tool slot holds a silk skill instead of a red tool. Up + skill uses it (a red tool equipped there is unequipped) | `Tool slots - Up slot holds a silk skill` | red tool slot |
 | The Memory Locket lock moves to the Up silk skill slot and the Down red tool slot is free, so the number of lockets stays the same (a locket already used on the Down slot unlocks the Up slot) | `Tool slots - Swap locket to the Up skill slot` | Down slot needs the locket |
 
 ### Wanderer
@@ -77,18 +77,18 @@ Every change can be toggled and tuned individually, in the in-game menu or in th
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Nail hits fill the harp (HUD harp opens at the first hit, strings appear at half, full harp at the end); a full harp makes the next Needle Strike critical (3× damage) | `Critical Strike - Hits to fill harp` (default 7) | 2 % crit chance per nail hit at 9+ Silk |
+| Nail hits fill the harp (HUD harp opens at the first hit, strings appear at half, full harp at the end). A full harp makes the next Needle Strike critical (3× damage) | `Critical Strike - Hits to fill harp` (default 7) | 2 % crit chance per nail hit at 9+ Silk |
 | Needle Strike is the single swipe | `Critical Strike - Swipe damage multiplier` (default 1), `Critical Strike - Swipe size multiplier` (default 1.5) | multi-hit flurry |
 
-**HarpNeedleStrike**: the multi-hit Needle Strike is used until the harp is full; then the next Needle Strike is the critical single swipe.
+**HarpNeedleStrike**: the multi-hit Needle Strike is used until the harp is full. Then the next Needle Strike is the critical single swipe.
 
 | Change | Config | Vanilla |
 |---|---|---|
-| Nail hits fill the harp; a full harp turns the next Needle Strike into the critical swipe | `Harp Needle Strike - Hits to fill harp` (default 7) | 2 % crit chance per nail hit at 9+ Silk |
+| Nail hits fill the harp. A full harp turns the next Needle Strike into the critical swipe | `Harp Needle Strike - Hits to fill harp` (default 7) | 2 % crit chance per nail hit at 9+ Silk |
 | A multi-hit Needle Strike that hits adds strings to the harp | `Harp Needle Strike - Harp charge per strike` (default 2) | no harp |
-| Every Nth hit of the multi-hit Needle Strike gives Silk (1, 3, 5… with 2; at most 3 Silk per enemy from a full flurry) | `Harp Needle Strike - Silk every Nth hit` (default 2) | only the first hit per enemy gives Silk |
-| The full-harp swipe gives 1 Silk | `Harp Needle Strike - Swipe gives 1 Silk` | – |
-| Size and damage of the swipe | `Harp Needle Strike - Swipe damage multiplier` (default 1), `Harp Needle Strike - Swipe size multiplier` (default 1.5) | – |
+| Every Nth hit of the multi-hit Needle Strike gives Silk (1, 3, 5… with 2, at most 3 Silk per enemy from a full flurry) | `Harp Needle Strike - Silk every Nth hit` (default 2) | only the first hit per enemy gives Silk |
+| The full-harp swipe gives 1 Silk | `Harp Needle Strike - Swipe gives 1 Silk` | no swipe |
+| Size and damage of the swipe | `Harp Needle Strike - Swipe damage multiplier` (default 1), `Harp Needle Strike - Swipe size multiplier` (default 1.5) | no swipe |
 
 ### Beast
 
@@ -98,4 +98,4 @@ Every change can be toggled and tuned individually, in the in-game menu or in th
 
 ## Requirements
 
-[ModMenu](https://thunderstore.io/c/hollow-knight-silksong/p/silksong_modding/ModMenu/) is required; it provides the in-game settings menu. A mod manager installs it (and its dependencies) automatically. A BepInEx configuration manager is optional (F1).
+[ModMenu](https://thunderstore.io/c/hollow-knight-silksong/p/silksong_modding/ModMenu/) is required. It provides the in-game settings menu. A mod manager installs it (and its dependencies) automatically. A BepInEx configuration manager is optional (F1).

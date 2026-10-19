@@ -16,7 +16,7 @@ namespace RebalancedCrests.Crests.Reaper
     /// - The Down slot's save flag records the locket, as in vanilla: a locket used on the Down slot carries over to
     ///   the Up slot, and an unlock of the Up slot (InventoryToolCrestSlot.SaveData setter) sets it.
     /// - The Up slot's save flag, true in vanilla saves, is set from it on every apply (and back to true when off).
-    /// - ToolCrest.Unlock sets the save flags from SlotInfo.IsLocked; for a Reaper crest obtained with the swap, the
+    /// - ToolCrest.Unlock sets the save flags from SlotInfo.IsLocked. For a Reaper crest obtained with the swap, the
     ///   Down slot's flag is cleared afterwards, since no locket was used.
     /// A tool in the Up slot while it is locked is unequipped.
     /// </summary>
@@ -31,7 +31,7 @@ namespace RebalancedCrests.Crests.Reaper
 
         internal UpSkillSlotTweak(ConfigFile config)
             : base(config, Crest.Reaper, "Tool slots - Up slot holds a silk skill",
-                "Reaper's Up tool slot holds a silk skill instead of a red tool; Up + skill uses it. "
+                "Reaper's Up tool slot holds a silk skill instead of a red tool. Up + skill uses it. "
                 + "Vanilla: a red tool slot.")
         {
             SwapLocket = config.Bind(Crest.Name, "Tool slots - Swap locket to the Up skill slot", true,

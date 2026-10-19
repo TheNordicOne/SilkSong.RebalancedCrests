@@ -9,7 +9,7 @@ namespace RebalancedCrests.Crests.Reaper
     /// Warns that Silk Steal (reaper mode) is about to end: during its last seconds the glow around Hornet
     /// (HeroController.reaperModeEffect, "crest_reaper_effects(Clone)") pulses, fading out and in once per
     /// 2 × 'Blink speed' seconds of ReaperModeDurationLeft. Its sprites ("glow", "reaper_halo_loop",
-    /// "reaper_halo_burst") are SpriteRenderers; their alpha is scaled in LateUpdate, after the effect's Animator, and
+    /// "reaper_halo_burst") are SpriteRenderers. Their alpha is scaled in LateUpdate, after the effect's Animator, and
     /// restored when the pulse ends. The "Fury_ring" particles are not faded.
     /// </summary>
     internal sealed class SilkStealTimerTweak : Tweak

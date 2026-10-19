@@ -12,7 +12,7 @@ namespace RebalancedCrests.Crests.Shared
     /// Allows dash, Drifter's Cloak and double jump during and right after a nail attack. Vanilla blocks them while
     /// cState.attacking and attack_time &lt; Config.AttackRecoveryTime (CanDash inline, CanDoubleJump and CanFloat via
     /// IsAttackLocked). Attack, Clawline, silk skills, tools and bind keep their vanilla locks.
-    /// One instance per crest; only the instance of the equipped crest applies.
+    /// One instance per crest. Only the instance of the equipped crest applies.
     /// </summary>
     [HarmonyPatch]
     internal sealed class MovementAfterAttackTweak : Tweak

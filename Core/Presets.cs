@@ -16,7 +16,7 @@ namespace RebalancedCrests.Core
     /// <summary>
     /// 'Mod - Preset' in General. A preset sets every tweak setting: its listed values, everything else to default.
     /// - Changing a setting by hand selects the preset whose values match, otherwise Custom.
-    /// - Leaving Custom saves the current values to a separate file; selecting Custom restores them.
+    /// - Leaving Custom saves the current values to a separate file. Selecting Custom restores them.
     /// - General and Debug settings are not part of presets.
     /// On startup, a preset whose values no longer match (e.g. the config file was edited) becomes Custom.
     /// </summary>
@@ -25,7 +25,7 @@ namespace RebalancedCrests.Core
         private static readonly string[] UntrackedSections = { "General", "Debug" };
 
         /// <summary>
-        /// Values per preset, keyed by "Section/Key"; settings that are not listed use their default.
+        /// Values per preset, keyed by "Section/Key". Settings that are not listed use their default.
         /// </summary>
         private static readonly Dictionary<Preset, Dictionary<string, object>> Definitions =
             new Dictionary<Preset, Dictionary<string, object>>
@@ -43,13 +43,13 @@ namespace RebalancedCrests.Core
         {
             _config = config;
             _preset = config.Bind("General", "Mod - Preset", Preset.Default,
-                "Default: the recommended values. Custom: your own values; changing any setting switches to Custom, "
+                "Default: the recommended values. Custom: your own values. Changing any setting switches to Custom, "
                 + "and switching back to Custom restores them.");
             _customPath = Path.ChangeExtension(config.ConfigFilePath, "custom.txt");
         }
 
         /// <summary>
-        /// Starts tracking; call after every setting is bound.
+        /// Starts tracking. Call after every setting is bound.
         /// </summary>
         internal void Start()
         {

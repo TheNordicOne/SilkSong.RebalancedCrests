@@ -18,7 +18,7 @@ namespace RebalancedCrests.Core
         }
 
         /// <summary>
-        /// For tweaks that are switched by another setting (e.g. a mode) instead of their own toggle; they override
+        /// For tweaks that are switched by another setting (e.g. a mode) instead of their own toggle. They override
         /// <see cref="IsOwnEnabled"/>.
         /// </summary>
         protected Tweak(Crest crest)
@@ -41,7 +41,7 @@ namespace RebalancedCrests.Core
         protected virtual bool IsOwnEnabled => Enabled.Value;
 
         /// <summary>
-        /// The General master switch; off disables every tweak.
+        /// The General master switch. Off disables every tweak.
         /// </summary>
         internal static ConfigEntry<bool> AllTweaks { get; private set; }
 

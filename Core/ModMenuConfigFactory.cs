@@ -15,9 +15,9 @@ namespace RebalancedCrests.Core
     /// <summary>
     /// Builds the ModMenu pages from the config: the mod page lists the sections (crests), a crest page lists its
     /// moves (the "&lt;Move&gt;" of a "&lt;Move&gt; - &lt;Change&gt;" key), and a move page holds its settings, labelled
-    /// only with the "&lt;Change&gt;". A crest with a single move shows that move's settings directly; keys without a
+    /// only with the "&lt;Change&gt;". A crest with a single move shows that move's settings directly. Keys without a
     /// move sit on the section page. Descriptions show only their first sentence.
-    /// ModMenu labels elements with the key; ChoiceElement and TextInput expose the label and description as public
+    /// ModMenu labels elements with the key. ChoiceElement and TextInput expose the label and description as public
     /// LabelText and DescriptionText fields. Every setting row is registered with <see cref="SettingResetKey"/>.
     /// </summary>
     internal sealed class ModMenuConfigFactory : ConfigEntryFactory
@@ -80,9 +80,9 @@ namespace RebalancedCrests.Core
         }
 
         /// <summary>
-        /// Resets the settings shown on a page to their defaults; pages that only list sub-pages have none. The
+        /// Resets the settings shown on a page to their defaults. Pages that only list sub-pages have none. The
         /// preset is skipped, because resetting it would apply the Default preset to every setting. Saving is
-        /// paused so the file is written once; the elements follow through SettingChanged.
+        /// paused so the file is written once. The elements follow through SettingChanged.
         /// </summary>
         private static TextButton ResetButton(List<ConfigEntryBase> entries)
         {

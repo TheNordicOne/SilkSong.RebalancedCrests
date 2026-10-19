@@ -11,14 +11,14 @@ namespace RebalancedCrests.Crests.Wanderer
     /// obtained. A full harp makes the next Needle Strike a critical hit on every hit (vanilla crit: 3× damage, 1.5×
     /// knockback, Wanderer_Precision_strike effect). The Needle Strike itself per mode: SingleSwipeNeedleStrikeTweak.
     /// Each mode has its own harp size.
-    /// - Hits are counted in HeroController.NailHitEnemy with the same conditions as Hunter's combo meter; Needle
+    /// - Hits are counted in HeroController.NailHitEnemy with the same conditions as Hunter's combo meter. Needle
     ///   Strike hits do not count.
     /// - IsWandererLucky drives both the random crit roll (DamageEnemies.DoDamage) and the vanilla harp on the HUD
     ///   (BindOrbHudFrame). It returns false inside the roll and "harp full" everywhere else, so the HUD harp appears
     ///   when the harp is full.
     /// - While the harp fills, the HUD shows the first frames of the harp's Full animation (HarpHudDisplay).
     /// - The Nail Arts states that activate the Needle Strike ("Wanderer Attack", or "Do Slash" with the single
-    ///   swipe) consume a full harp. "Do Slash" is shared with other crests; the action only acts with Wanderer.
+    ///   swipe) consume a full harp. "Do Slash" is shared with other crests. The action only acts with Wanderer.
     /// - HealthManager.TakeDamage marks the hits of that Needle Strike as critical.
     /// </summary>
     [HarmonyPatch]
@@ -37,16 +37,16 @@ namespace RebalancedCrests.Crests.Wanderer
                 "Which Wanderer rework is used. "
                 + "Vanilla: random critical hits (2 % chance per nail hit while at 9 or more Silk) and the multi-hit "
                 + "Needle Strike. "
-                + "CriticalStrike: Needle Strike is a single powerful swipe; nail hits fill the harp and a full harp "
+                + "CriticalStrike: Needle Strike is a single powerful swipe. Nail hits fill the harp and a full harp "
                 + "makes the next swipe a critical hit (3× damage). Uses the 'Critical Strike - ...' settings. "
-                + "HarpNeedleStrike: the multi-hit Needle Strike is used until the harp is full; nail hits and "
+                + "HarpNeedleStrike: the multi-hit Needle Strike is used until the harp is full. Nail hits and "
                 + "Needle Strikes fill the harp, and a full harp turns the next Needle Strike into the critical "
                 + "swipe. Uses the 'Harp Needle Strike - ...' settings.");
             CriticalStrikeHitsToFill = config.Bind(Crest.Name, "Critical Strike - Hits to fill harp", 7,
                 new ConfigDescription("Nail hits on enemies needed to fill the harp.",
                     new AcceptableValueRange<int>(1, 50)));
             HarpNeedleStrikeHitsToFill = config.Bind(Crest.Name, "Harp Needle Strike - Hits to fill harp", 7,
-                new ConfigDescription("Harp strings needed to fill the harp; each nail hit on an enemy adds one.",
+                new ConfigDescription("Harp strings needed to fill the harp. Each nail hit on an enemy adds one.",
                     new AcceptableValueRange<int>(1, 50)));
             _instance = this;
         }
