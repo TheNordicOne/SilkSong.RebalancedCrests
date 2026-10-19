@@ -24,6 +24,7 @@ namespace RebalancedCrests
         private void Awake()
         {
             Tweak.BindGeneral(Config);
+            var presets = new Presets(Config);
             foreach (var crest in Crest.All)
             {
                 _tweaks.Add(new MovementAfterAttackTweak(Config, crest));
@@ -54,6 +55,7 @@ namespace RebalancedCrests
 
             DebugLog.Init(Config, Logger);
             CrestDump.Init(Config, Logger);
+            presets.Start();
             HeroEvents.HeroStarted += ApplyTweaks;
             Config.SettingChanged += (_, _) => ApplyTweaks(HeroController.UnsafeInstance);
             var harmony = new Harmony(Info.Metadata.GUID);
