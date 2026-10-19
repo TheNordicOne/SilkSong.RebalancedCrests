@@ -34,7 +34,8 @@ namespace RebalancedCrests.Crests.Wanderer
             : base(Crest.Wanderer)
         {
             Mode = config.Bind(Crest.Name, "Rework - Mode", WandererMode.CriticalStrike,
-                "Vanilla: random critical hits (2 % chance per nail hit while at 9 or more Silk) and the multi-hit "
+                "Which Wanderer rework is used. "
+                + "Vanilla: random critical hits (2 % chance per nail hit while at 9 or more Silk) and the multi-hit "
                 + "Needle Strike. "
                 + "CriticalStrike: Needle Strike is a single powerful swipe; nail hits fill the harp and a full harp "
                 + "makes the next swipe a critical hit (3× damage). Uses the 'Critical Strike - ...' settings. "

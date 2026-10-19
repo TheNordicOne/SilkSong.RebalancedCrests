@@ -59,7 +59,7 @@ namespace RebalancedCrests.Diagnostics
         {
             _log = log;
             _enabled = config.Bind("Debug", "Dump crest data", false,
-                "Write crest, hero config and FSM data to BepInEx/RebalancedCrests-dump when a save is loaded.");
+                "Write crest and FSM data to a dump folder when a save is loaded. The folder is BepInEx/RebalancedCrests-dump.");
             HeroEvents.HeroStarted += OnHeroStarted;
         }
 

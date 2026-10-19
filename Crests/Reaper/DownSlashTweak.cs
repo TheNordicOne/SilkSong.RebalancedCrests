@@ -26,7 +26,7 @@ namespace RebalancedCrests.Crests.Reaper
 
         internal DownSlashTweak(ConfigFile config)
             : base(config, Crest.Reaper, "Down-slash - Instant, keeps control",
-                "The Down-slash (pogo) hits the moment you press attack, you keep control of Hornet and she is no longer pulled "
+                "The Down-slash (pogo) hits instantly and you keep control of Hornet. She is no longer pulled "
                 + "diagonally down. It keeps its slow attack speed. Vanilla: 0.1667 s windup, ~0.5 s without control.")
         {
             _instance = this;
