@@ -16,6 +16,10 @@ It implements all the proposed changes as best as possible, while keeping everyt
 
 All settings are in the game's menu under **Options → Mods → Rebalanced Crests** (from the main menu or the pause menu), with one page per crest and move. Select a setting and press R / Backspace (controller: X / Square) to reset it, or use "Reset to default" at the bottom of a page of settings to reset that page. Under General, the preset `Default` sets everything to the recommended values. Changing any setting switches to `Custom`, and switching back to `Custom` restores your own values. With a BepInEx configuration manager installed, F1 opens the same settings.
 
+## Artwork
+
+The icon for this mod was created by @acheofslowdecay.
+
 ## Installation instructions
 
 The easiest way is to install it from Thunderstore with a mod manager like r2modman or Gale.
