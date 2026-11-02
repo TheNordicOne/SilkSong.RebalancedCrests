@@ -15,7 +15,7 @@ using Silksong.ModMenu.Screens;
 
 namespace RebalancedCrests
 {
-    [BepInPlugin("com.thenordicone.rebalancedcrests", "Rebalanced Crests", "2.0.1")]
+    [BepInPlugin("com.thenordicone.rebalancedcrests", "Rebalanced Crests", "2.0.2")]
     [BepInDependency(ModMenuPlugin.Id)]
     public class RebalancedCrests : BaseUnityPlugin, IModMenuCustomMenu
     {
